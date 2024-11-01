@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Convertidor MusicXML/MIDI a ABC.js</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-family: Arial, sans-serif;
+        }
+
+        #container {
+            display: flex;
+            justify-content: space-around;
+            width: 80%;
+            margin-top: 20px;
+        }
+
+        .panel {
+            width: 45%;
+        }
+
+        #abc-text {
+            white-space: pre-wrap;
+            border: 1px solid #ccc;
+            padding: 10px;
+            height: 400px;
+            overflow-y: scroll;
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <h1>Convertidor de MusicXML/MIDI a ABC.js</h1>
+    <div id="container">
+        <div class="panel">
+            <h2>Subir archivo MusicXML o MIDI</h2>
+            <input type="file" id="file-input" accept=".musicxml,.midi" />
+        </div>
+
+        <div class="panel">
+            <h2>Partitura y Código ABC</h2>
+            <div id="abc-text"></div>
+            <div id="abc-render"></div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/abcjs@6.0.0-beta.36/abcjs-basic-min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/midi-js/0.3.0/midi.js"></script>
+
+    <script>
+        document.getElementById('file-input').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const fileContent = e.target.result;
+
+                    // Hacer una petición a la API para convertir a ABC
+                    fetch('/convert', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ fileContent: fileContent })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.abcNotation) {
+                            // Mostrar el texto ABC
+                            document.getElementById('abc-text').textContent = data.abcNotation;
+                            
+                            // Renderizar partitura ABC
+                            ABCJS.renderAbc("abc-render", data.abcNotation);
+                        } else {
+                            alert("Error: " + data.error);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+                };
+                reader.readAsText(file);
+            }
+        });
+    </script>
+</body>
+</html>

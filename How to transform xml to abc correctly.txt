@@ -1,0 +1,14 @@
+Examlpel: 
+python xml2abc.py C:\Users\Martí\OneDrive\Desktop\UPF\4rt\TFG\testxml.mxl -x -u -c 6 -n 80 -m 0 -o C:\Users\Martí\OneDrive\Desktop\UPF\4rt\TFG\output  
+
+-x:Desactiva saltos de línea $
+
+-u:Despliega repeticiones simples
+
+-c 6:Reduce los elementos de crédito
+
+-n 80:Limita la longitud de línea a 80 caracteres
+
+-m 0:Desactiva las directivas MIDI
+
+-o:Especifica el directorio de salida
