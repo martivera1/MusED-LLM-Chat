@@ -3,88 +3,148 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Convertidor MusicXML/MIDI a ABC.js</title>
+    <title>Converter MusicXML to ABC</title>
     <style>
+        /* Estilos generales */
         body {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            font-family: Arial, sans-serif;
+            font-family: 'Arial', sans-serif;
+            text-align: center;
+            background-color: #f0f4f8;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+        h1 {
+            color: #2c3e50;
+            margin-top: 20px;
+            font-size: 2em;
         }
 
+        /* Estilo del formulario */
+        #upload-form {
+            background-color: #fff;
+            padding: 15px 20px;
+            margin: 20px auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            display: inline-block;
+        }
+        #upload-form label {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        #upload-form input[type="file"] {
+            margin: 10px 0;
+        }
+        #upload-form button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1em;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        #upload-form button:hover {
+            background-color: #2980b9;
+        }
+
+        /* Estilo de los contenedores */
         #container {
             display: flex;
             justify-content: space-around;
-            width: 80%;
             margin-top: 20px;
+            align-items: flex-start;
+            gap: 20px;
+            padding: 20px;
         }
-
         .panel {
             width: 45%;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 15px;
+            box-sizing: border-box;
+            overflow: hidden;
         }
-
         #abc-text {
             white-space: pre-wrap;
-            border: 1px solid #ccc;
+            border: 1px solid #d0d7de;
             padding: 10px;
             height: 400px;
-            overflow-y: scroll;
-            background-color: #f9f9f9;
+            overflow-y: auto;
+            font-family: monospace;
+            color: #2c3e50;
+            background-color: #f9fafb;
+        }
+        #abc-render {
+            width: 100%;
+            overflow: auto;
+            border: 1px solid #d0d7de;
+            padding: 10px;
+            background-color: #fff;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Efectos y mejoras visuales */
+        * {
+            box-sizing: border-box;
+        }
+        #abc-render svg {
+            max-width: 100%;
         }
     </style>
 </head>
 <body>
-    <h1>Convertidor de MusicXML/MIDI a ABC.js</h1>
-    <div id="container">
-        <div class="panel">
-            <h2>Subir archivo MusicXML o MIDI</h2>
-            <input type="file" id="file-input" accept=".musicxml,.midi" />
-        </div>
+    <h1>Converter MusicXML to ABC</h1>
 
-        <div class="panel">
-            <h2>Partitura y Código ABC</h2>
-            <div id="abc-text"></div>
-            <div id="abc-render"></div>
-        </div>
+    <form id="upload-form" enctype="multipart/form-data">
+        <label for="file">Choose a file:</label>
+        <input type="file" id="file" name="file" accept=".musicxml,.xml" required>
+        <button type="submit">Convert to ABC</button>
+    </form>
+
+    <div id="container">
+        <div class="panel" id="abc-text"></div>
+        <div class="panel" id="abc-render"></div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/abcjs@6.0.0-beta.36/abcjs-basic-min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/midi-js/0.3.0/midi.js"></script>
+    <!-- Importa ABC.js como un módulo ES6 -->
+    <script type="module">
+        import abcjs from 'https://cdn.jsdelivr.net/npm/abcjs@6.4.4/+esm';
 
-    <script>
-        document.getElementById('file-input').addEventListener('change', function(event) {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const fileContent = e.target.result;
+        document.getElementById('upload-form').addEventListener('submit', function(event) {
+            event.preventDefault();
 
-                    // Hacer una petición a la API para convertir a ABC
-                    fetch('/convert', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({ fileContent: fileContent })
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.abcNotation) {
-                            // Mostrar el texto ABC
-                            document.getElementById('abc-text').textContent = data.abcNotation;
-                            
-                            // Renderizar partitura ABC
-                            ABCJS.renderAbc("abc-render", data.abcNotation);
-                        } else {
-                            alert("Error: " + data.error);
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                    });
-                };
-                reader.readAsText(file);
-            }
+            var fileInput = document.getElementById('file');
+            var formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+
+            // Enviar el archivo al servidor
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert('Error: ' + data.error);
+                } else {
+                    // Mostrar el contenido ABC en texto y en partitura
+                    document.getElementById('abc-text').textContent = data.abc;
+
+                    if (data.abc.includes("K:") || data.abc.includes("X:")) {
+                        // Asegura que el área de partitura sea lo suficientemente grande para evitar que se corte
+                        abcjs.renderAbc("abc-render", data.abc, { responsive: "resize" });
+                    } else {
+                        alert("El archivo convertido no parece estar en formato ABC legible.");
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
         });
     </script>
 </body>

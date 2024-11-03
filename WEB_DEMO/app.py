@@ -1,125 +1,65 @@
-# from flask import Flask, request, jsonify, render_template
-# import subprocess
-# import os
-
-# app = Flask(__name__)
-
-# @app.route('/')
-# def serve_index():
-#     print("Serving index.html")
-#     return render_template('index.html')  # Serve index.html from the templates folder
-
-# @app.route('/convert', methods=['POST'])
-# def convert():
-#     data = request.get_json()
-#     file_content = data.get('fileContent')
-
-#     # Define temporary input and output file paths
-#     input_file = r"C:/Users/Martí/OneDrive/Desktop/UPF/4rt/TFG/testxml.mxl"  # Temporary input file
-#     output_file = r"C:/Users/Martí/OneDrive/Desktop/UPF/4rt/TFG/output.abc"  # Output file
-
-#     print("Writing content to temporary input file...")
-#     # Write the content to the temporary input file
-#     with open(input_file, 'w') as f:
-#         f.write(file_content)
-
-#     python_path = r"C:/Users/Martí/AppData/Local/Programs/Python/Python38/python.exe"
-
-#     # Command to run xml2abc.py
-#     command = [
-#         python_path, r'C:/Users/Martí/OneDrive/Desktop/UPF/4rt/TFG/static/scripts/xml2abc.py',
-#         input_file,
-#         '-x', '-u', '-c', '6', '-n', '80', '-m', '0', '-o', output_file
-#     ]
-
-#     print(f"Executing command: {' '.join(command)}")
-    
-#     # Execute the command
-#     try:
-#         subprocess.run(command, check=True)
-#         print("Command executed successfully.")
-
-#         # Read the output ABC notation
-#         print("Reading output from ABC file...")
-#         with open(output_file, 'r') as f:
-#             abc_notation = f.read()
-        
-#         print("ABC notation successfully retrieved.")
-#         return jsonify({'abcNotation': abc_notation})
-
-#     except subprocess.CalledProcessError as e:
-#         print(f"Error executing command: {e}")
-#         return jsonify({'error': str(e)}), 500
-#     finally:
-#         # # Clean up temporary files
-#         # print("Cleaning up temporary files...")
-#         # if os.path.exists(input_file):
-#         #     os.remove(input_file)
-#         #     print(f"Deleted temporary input file: {input_file}")
-#         # if os.path.exists(output_file):
-#         #     os.remove(output_file)
-#         #     print(f"Deleted output file: {output_file}")
-#         print("done")
-
-# if __name__ == '__main__':
-#     app.run(debug=True)
-from flask import Flask, request, jsonify, render_template
-from pathlib import Path
-import subprocess
+from flask import Flask, render_template, request, jsonify
 import os
-
+import subprocess
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 
+# Directorio para archivos temporales
+TEMP_DIR = "temp_files"
+os.makedirs(TEMP_DIR, exist_ok=True)  # Crea la carpeta si no existe
+
+# Ruta para la página principal
 @app.route('/')
-def serve_index():
-    return render_template('index.html')  # Serve index.html from the templates folder
+def index():
+    return render_template('index.html')
 
-@app.route('/convert', methods=['POST'])
-def convert():
-    data = request.get_json()
-    file_content = data.get('fileContent')
+# Ruta para manejar la subida de archivos y la conversión
+@app.route('/upload', methods=['POST'])
+def upload_file():
+    if 'file' not in request.files:
+        return jsonify({'error': 'No file part'})
 
-    # Define temporary input and output file paths
-    input_file = Path("C:/Users/Martí/OneDrive/Desktop/UPF/4rt/TFG/testxml.mxl")
-    output_file = Path("C:/Users/Martí/OneDrive/Desktop/UPF/4rt/TFG/output.abc")
-    xml2abc_path = Path("C:/Users/Martí/OneDrive/Desktop/UPF/4rt/TFG/static/scripts/xml2abc.py")
-    python_executable = Path("C:/Users/Martí/AppData/Local/Programs/Python/Python38/python.exe")
+    file = request.files['file']
 
-    # Write the content to the temporary input file
-    with open(input_file, 'w', encoding='utf-8') as f:
-        f.write(file_content)
+    if file.filename == '':
+        return jsonify({'error': 'No selected file'})
 
-    # Print paths for debugging
-    print(f"Input File: {input_file}")
-    print(f"Output File: {output_file}")
-    print(f"XML2ABC Path: {xml2abc_path}")
+    # Guardar el archivo en la carpeta 'temp_files'
+    filename = secure_filename(file.filename)
+    input_path = os.path.join(TEMP_DIR, filename)
+    file.save(input_path)
 
-    # Command to run xml2abc.py
-    command = [
-        str(python_executable),
-        str(xml2abc_path),
-        str(input_file),
-        '-x', '-u', '-c', '6', '-n', '80', '-m', '0', '-o', str(output_file)
-    ]
+    # Definir el archivo de salida
+    output_filename = f"{os.path.splitext(filename)[0]}.abc"
+    output_path = os.path.join(TEMP_DIR, output_filename)
+    FILE_PATH = os.path.join(TEMP_DIR, "xmlfile.abc", "xmlfile.abc")
 
-    print(f"Running command: {command}")  # Debug print
-
-    # Execute the command
+    print(input_path)
+    print(output_path)
     try:
-        result = subprocess.run(command, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        print("Command executed successfully.")
-    except subprocess.CalledProcessError as e:
-        print(f"Error executing command: {e}")
-        print(f"Output: {e.output.decode()}")
-        print(f"Error Output: {e.stderr.decode('latin-1', errors='replace')}")
-        return jsonify({'error': str(e)}), 500
+        # Construir el comando para ejecutar xml2abc.py con los argumentos necesarios
+        command = [
+            "python3.8", "./static/scripts/xml2abc.py",
+            input_path, "-x", "-u", "-c", "6", "-n", "80", "-m", "0", "-o", output_path
+        ]
 
-    # Read the output ABC notation
-    with open(output_file, 'r', encoding='utf-8') as f:
-        abc_notation = f.read()
-    
-    return jsonify({'abcNotation': abc_notation})
+        # Ejecutar el comando y capturar cualquier salida o error
+        result = subprocess.run(command, capture_output=True, text=True)
+
+        # Verificar si hubo un error en la ejecución
+        if result.returncode != 0:
+            return jsonify({'error': result.stderr})
+
+        # Leer el contenido del archivo ABC generado
+        with open(FILE_PATH, 'r') as f:
+            abc_content = f.read()
+
+        # Devolver el contenido ABC como respuesta
+        return jsonify({'abc': abc_content})
+
+    except Exception as e:
+        return jsonify({'error': str(e)})
 
 if __name__ == '__main__':
     app.run(debug=True)
