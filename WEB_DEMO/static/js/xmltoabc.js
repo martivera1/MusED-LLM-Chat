@@ -56,3 +56,26 @@ document.getElementById('update-btn').addEventListener('click', function() {
         console.error('Error:', error);
     });
 });
+
+// Función para guardar la partitura como PDF
+document.getElementById('save-pdf').addEventListener('click', async function() {
+    // Captura el elemento de la partitura en una imagen usando html2canvas
+    const abcRenderElement = document.getElementById('abc-render');
+    const canvas = await html2canvas(abcRenderElement, {
+        backgroundColor: "#FFFFFF"
+    });
+
+    // Convierte el canvas a una imagen PNG
+    const imgData = canvas.toDataURL('image/png');
+
+    // Configura y crea el PDF con jsPDF
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF('portrait', 'px', 'a4');
+
+    // Ajusta el tamaño de la imagen en el PDF
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+
+    pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+    pdf.save('partitura.pdf'); // Guarda el PDF con el nombre 'partitura.pdf'
+});
