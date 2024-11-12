@@ -4,97 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Converter MusicXML to ABC</title>
-    <style>
-        /* Estilos generales */
-        body {
-            font-family: 'Arial', sans-serif;
-            text-align: center;
-            background-color: #f0f4f8;
-            color: #333;
-            margin: 0;
-            padding: 0;
-        }
-        h1 {
-            color: #2c3e50;
-            margin-top: 20px;
-            font-size: 2em;
-        }
-
-        /* Estilo del formulario */
-        #upload-form {
-            background-color: #fff;
-            padding: 15px 20px;
-            margin: 20px auto;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            display: inline-block;
-        }
-        #upload-form label {
-            font-weight: bold;
-            color: #2c3e50;
-        }
-        #upload-form input[type="file"] {
-            margin: 10px 0;
-        }
-        #upload-form button {
-            background-color: #3498db;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            font-size: 1em;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-        #upload-form button:hover {
-            background-color: #2980b9;
-        }
-
-        /* Estilo de los contenedores */
-        #container {
-            display: flex;
-            justify-content: space-around;
-            margin-top: 20px;
-            align-items: flex-start;
-            gap: 20px;
-            padding: 20px;
-        }
-        .panel {
-            width: 45%;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            padding: 15px;
-            box-sizing: border-box;
-            overflow: hidden;
-        }
-        #abc-text {
-            white-space: pre-wrap;
-            border: 1px solid #d0d7de;
-            padding: 10px;
-            height: 400px;
-            overflow-y: auto;
-            font-family: monospace;
-            color: #2c3e50;
-            background-color: #f9fafb;
-        }
-        #abc-render {
-            width: 100%;
-            overflow: auto;
-            border: 1px solid #d0d7de;
-            padding: 10px;
-            background-color: #fff;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        /* Efectos y mejoras visuales */
-        * {
-            box-sizing: border-box;
-        }
-        #abc-render svg {
-            max-width: 100%;
-        }
-    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 <body>
     <h1>Converter MusicXML to ABC</h1>
@@ -106,46 +16,20 @@
     </form>
 
     <div id="container">
-        <div class="panel" id="abc-text"></div>
+        <!-- Panel de texto ABC -->
+        <div class="panel">
+            <!-- Área de texto editable para el contenido ABC -->
+            <textarea id="abc-text" rows="20" style="width: 100%;"></textarea>
+
+            <!-- Botón "Update" para enviar los cambios del área de texto -->
+            <button id="update-btn" style="margin-top: 10px;">Update</button>
+        </div>
+
+        <!-- Panel de visualización de partitura ABC -->
         <div class="panel" id="abc-render"></div>
     </div>
 
-    <!-- Importa ABC.js como un módulo ES6 -->
-    <script type="module">
-        import abcjs from 'https://cdn.jsdelivr.net/npm/abcjs@6.4.4/+esm';
-
-        document.getElementById('upload-form').addEventListener('submit', function(event) {
-            event.preventDefault();
-
-            var fileInput = document.getElementById('file');
-            var formData = new FormData();
-            formData.append('file', fileInput.files[0]);
-
-            // Enviar el archivo al servidor
-            fetch('/upload', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.error) {
-                    alert('Error: ' + data.error);
-                } else {
-                    // Mostrar el contenido ABC en texto y en partitura
-                    document.getElementById('abc-text').textContent = data.abc;
-
-                    if (data.abc.includes("K:") || data.abc.includes("X:")) {
-                        // Asegura que el área de partitura sea lo suficientemente grande para evitar que se corte
-                        abcjs.renderAbc("abc-render", data.abc, { responsive: "resize" });
-                    } else {
-                        alert("El archivo convertido no parece estar en formato ABC legible.");
-                    }
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
-        });
-    </script>
+    <script type="module" src="/static/js/xmltoabc.js"></script>
+    ></script>
 </body>
 </html>

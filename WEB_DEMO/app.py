@@ -1,12 +1,14 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, send_from_directory
 import os
 import subprocess
 from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 
-# Directorio para archivos temporales
-TEMP_DIR = "temp_files"
+# Directorios
+TEMP_DIR = os.path.join(os.path.dirname(__file__), 'temp_files') #"temp_files"
+STATIC_SCRIPTS_DIR = "static/scripts"  # para archivos como xml2abc.py
+
 os.makedirs(TEMP_DIR, exist_ok=True)  # Crea la carpeta si no existe
 
 # Ruta para la página principal
@@ -30,18 +32,19 @@ def upload_file():
     input_path = os.path.join(TEMP_DIR, filename)
     file.save(input_path)
 
-    # Definir el archivo de salida
     output_filename = f"{os.path.splitext(filename)[0]}.abc"
-    output_path = os.path.join(TEMP_DIR, output_filename)
-    FILE_PATH = os.path.join(TEMP_DIR, "xmlfile.abc", "xmlfile.abc")
+    output_path = os.path.join(TEMP_DIR)
 
-    print(input_path)
-    print(output_path)
+    # Aquí añadimos una verificación para asegurarnos de que `output_path` sea un archivo
+    if not os.path.splitext(output_path)[1]:  # si no tiene extensión
+        output_path = os.path.join(output_path, f"{os.path.splitext(filename)[0]}.abc")
+
+
     try:
         # Construir el comando para ejecutar xml2abc.py con los argumentos necesarios
         command = [
             "python3.8", "./static/scripts/xml2abc.py",
-            input_path, "-x", "-u", "-c", "6", "-n", "80", "-m", "0", "-o", output_path
+            input_path, "-x", "-u", "-c", "6", "-n", "80", "-m", "0", "-o", TEMP_DIR
         ]
 
         # Ejecutar el comando y capturar cualquier salida o error
@@ -52,7 +55,7 @@ def upload_file():
             return jsonify({'error': result.stderr})
 
         # Leer el contenido del archivo ABC generado
-        with open(FILE_PATH, 'r') as f:
+        with open(output_path, 'r') as f:
             abc_content = f.read()
 
         # Devolver el contenido ABC como respuesta
@@ -60,6 +63,19 @@ def upload_file():
 
     except Exception as e:
         return jsonify({'error': str(e)})
+    
+@app.route('/update_abc', methods=['POST'])
+def update_abc():
+    data = request.get_json()
+
+    if 'abc' not in data:
+        return jsonify({'error': 'No ABC data provided'}), 400
+
+    abc_content = data['abc']
+    # Aquí podrías hacer validaciones adicionales si es necesario.
+
+    # Retornar el ABC actualizado al cliente (la visualización se actualizará automáticamente)
+    return jsonify({'abc': abc_content})
 
 if __name__ == '__main__':
     app.run(debug=True)
