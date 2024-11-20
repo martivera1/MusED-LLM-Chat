@@ -57,25 +57,74 @@ document.getElementById('update-btn').addEventListener('click', function() {
     });
 });
 
+// // Función para guardar la partitura como PDF
+// document.getElementById('save-pdf').addEventListener('click', async function() {
+//     // Captura el elemento de la partitura en una imagen usando html2canvas
+//     const abcRenderElement = document.getElementById('abc-render');
+//     const canvas = await html2canvas(abcRenderElement, {
+//         backgroundColor: "#FFFFFF"
+//     });
+
+//     // Convierte el canvas a una imagen PNG
+//     const imgData = canvas.toDataURL('image/png');
+
+//     // Configura y crea el PDF con jsPDF
+//     const { jsPDF } = window.jspdf;
+//     const pdf = new jsPDF('portrait', 'px', 'a4');
+
+//     // Ajusta el tamaño de la imagen en el PDF
+//     const pdfWidth = pdf.internal.pageSize.getWidth();
+//     const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+
+//     pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+//     pdf.save('partitura.pdf'); // Guarda el PDF con el nombre 'partitura.pdf'
+// });
+
 // Función para guardar la partitura como PDF
-document.getElementById('save-pdf').addEventListener('click', async function() {
-    // Captura el elemento de la partitura en una imagen usando html2canvas
+document.getElementById('save-pdf').addEventListener('click', async function () {
     const abcRenderElement = document.getElementById('abc-render');
+
+    // Usa html2canvas para capturar el contenido visible de #abc-render
     const canvas = await html2canvas(abcRenderElement, {
-        backgroundColor: "#FFFFFF"
+        backgroundColor: "#FFFFFF",
+        scale: 2 // Aumenta la calidad del renderizado
     });
 
-    // Convierte el canvas a una imagen PNG
+    // Convierte el canvas a una imagen
     const imgData = canvas.toDataURL('image/png');
 
-    // Configura y crea el PDF con jsPDF
+    // Configuración inicial del PDF
     const { jsPDF } = window.jspdf;
-    const pdf = new jsPDF('portrait', 'px', 'a4');
+    const pdf = new jsPDF('portrait', 'px', 'a4'); // PDF en modo vertical (A4)
 
-    // Ajusta el tamaño de la imagen en el PDF
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+    const pdfWidth = pdf.internal.pageSize.getWidth(); // Ancho de la página A4
+    const pdfHeight = pdf.internal.pageSize.getHeight(); // Altura de la página A4
+    const imgWidth = pdfWidth; // Ajusta la imagen al ancho del PDF
+    const imgHeight = (canvas.height * pdfWidth) / canvas.width; // Mantén la proporción
 
-    pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-    pdf.save('partitura.pdf'); // Guarda el PDF con el nombre 'partitura.pdf'
+    let yOffset = 0; // Desplazamiento vertical inicial
+
+    // Si la imagen es más alta que el PDF, divide en páginas
+    while (yOffset < imgHeight) {
+        const visibleHeight = Math.min(imgHeight - yOffset, pdfHeight); // Altura visible en la página
+        const canvasPart = document.createElement('canvas');
+        canvasPart.width = canvas.width;
+        canvasPart.height = (visibleHeight * canvas.width) / pdfWidth;
+
+        // Dibuja la parte visible del canvas
+        const ctx = canvasPart.getContext('2d');
+        ctx.drawImage(canvas, 0, yOffset, canvas.width, canvasPart.height, 0, 0, canvasPart.width, canvasPart.height);
+
+        // Añade la imagen al PDF
+        const partImgData = canvasPart.toDataURL('image/png');
+        pdf.addImage(partImgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+
+        yOffset += pdfHeight; // Mueve el desplazamiento
+        if (yOffset < imgHeight) {
+            pdf.addPage(); // Añade una nueva página si queda contenido
+        }
+    }
+
+    // Guarda el PDF
+    pdf.save('partitura.pdf');
 });

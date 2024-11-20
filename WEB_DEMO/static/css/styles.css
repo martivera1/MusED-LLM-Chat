@@ -46,10 +46,9 @@ h1 {
 /* Estilo de los contenedores */
 #container {
     display: flex;
-    justify-content: space-around;
-    margin-top: 20px;
-    align-items: flex-start;
-    gap: 20px;
+    flex-direction: column; /* Cambia a formato vertical */
+    gap: 20px; /* Espacio entre los paneles */
+    width: 100%;
     padding: 20px;
 }
 .panel {
@@ -61,6 +60,8 @@ h1 {
     box-sizing: border-box;
     overflow: hidden;
 }
+
+/*=====================================================================================*/
 #abc-text {
     white-space: pre-wrap;
     border: 1px solid #d0d7de;
@@ -71,14 +72,43 @@ h1 {
     color: #2c3e50;
     background-color: #f9fafb;
 }
+
+/**/
+
 #abc-render {
-    width: 100%;
-    overflow: auto;
-    border: 1px solid #d0d7de;
+    width: 100%; /* Ajusta al ancho disponible */
+    min-height: auto; /* Elimina cualquier restricción de altura fija */
+    max-height: none; /* Permite crecer sin límites */
+    overflow: visible; /* Asegura que todo el contenido sea visible */
+    position: relative; /* Asegura un contexto correcto para renderizado */
     padding: 10px;
-    background-color: #fff;
-    box-shadow: none;
+    background-color: #fff; /* Asegura que el fondo sea blanco para el PDF */
 }
+
+/*=====================================================================================*/
+
+
+/* Área de texto ABC (Editor) */
+.abc-editor {
+    width: 100%; /* Ocupa todo el ancho */
+    min-height: 150px; /* Altura mínima */
+    background-color: #f9f9f9; /* Fondo claro */
+    padding: 10px;
+    border: 1px solid #ddd;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Panel de visualización de la partitura */
+.abc-notation {
+    width: 100%; /* Ocupa todo el ancho */
+    min-height: 300px; /* Altura mínima */
+    background-color: #fff;
+    padding: 10px;
+    border: 1px solid #ddd;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    overflow-x: auto; /* Permite desplazamiento horizontal si es necesario */
+}
+
 
 /* Efectos y mejoras visuales */
 * {
@@ -88,3 +118,5 @@ h1 {
     max-width: 100%;
     background-color: #fff; /*Fons blanc*/
 }
+
+
