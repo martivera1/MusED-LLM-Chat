@@ -1,25 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MusicXML to ABC Converter</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+</head>
 <body>
-    <h1>Converter MusicXML to ABC</h1>
+    <header class="main-header">
+        <h1>🎵 MusicXML to ABC Converter</h1>
+        <p>Transform your MusicXML to ABC format. </p>
+    </header>
 
-    <form id="upload-form" enctype="multipart/form-data">
-        <label for="file">Choose a file:</label>
-        <input type="file" id="file" name="file" accept=".musicxml,.xml" required>
-        <button type="submit">Convert to ABC</button>
-    </form>
+    <section id="upload-section">
+        <form id="upload-form" enctype="multipart/form-data">
+            <label for="file">Select your file:</label>
+            <input type="file" id="file" name="file" accept=".musicxml,.xml" required>
+            <button type="submit">Convert to ABC</button>
+        </form>
+    </section>
 
-    <div id="container">
+    <main id="container">
         <!-- Área de texto ABC -->
-        <div class="panel abc-editor">
-            <textarea id="abc-text" rows="10" style="width: 100%;"></textarea>
-            <button id="update-btn" style="margin-top: 10px;">Update</button>
-            <button id="save-pdf" style="margin-top: 10px;">Save as PDF</button>
-        </div>
+        <section class="panel abc-editor">
+            <h2>ABC Editor</h2>
+            <textarea id="abc-text" rows="10" placeholder="Aquí se mostrará el contenido en formato ABC..."></textarea>
+            <div class="button-group">
+                <button id="update-btn">Update</button>
+                <button id="save-pdf">Save as PDF</button>
+            </div>
+        </section>
 
         <!-- Panel de visualización de partitura ABC -->
-        <div class="panel abc-notation" id="abc-render"></div>
-    </div>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script type="module" src="/static/js/xmltoabc.js"></script>
+        <section class="panel abc-notation" id="abc-render">
+            <h2>Score overview</h2>
+        </section>
+    </main>
 </body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script type="module" src="/static/js/xmltoabc.js"></script>
+</html>

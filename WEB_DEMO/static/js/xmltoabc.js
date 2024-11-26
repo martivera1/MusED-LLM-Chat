@@ -21,9 +21,26 @@ document.getElementById('upload-form').addEventListener('submit', function(event
             // Mostrar el contenido ABC en texto y en partitura
             document.getElementById('abc-text').textContent = data.abc;
 
+            // if (data.abc.includes("K:") || data.abc.includes("X:")) {
+            //     // Asegura que el área de partitura sea lo suficientemente grande para evitar que se corte
+            //     abcjs.renderAbc("abc-render", data.abc, { responsive: "resize" });
+            // } else {
+            //     alert("El archivo convertido no parece estar en formato ABC legible.");
+            // }
             if (data.abc.includes("K:") || data.abc.includes("X:")) {
                 // Asegura que el área de partitura sea lo suficientemente grande para evitar que se corte
-                abcjs.renderAbc("abc-render", data.abc, { responsive: "resize" });
+                const renderElement = document.getElementById('abc-render');
+                const containerWidth = renderElement.offsetWidth; // Ancho del contenedor
+                
+                // Ajustar dinámicamente CSS si es necesario
+                renderElement.style.width = "100%"; // O un valor más específico como "800px"
+                renderElement.style.minHeight = "400px"; // Garantiza suficiente espacio vertical
+            
+                // Renderiza la partitura ajustada al ancho del contenedor
+                abcjs.renderAbc("abc-render", data.abc, {
+                    responsive: "resize",
+                    staffwidth: containerWidth // Asegura que la partitura se ajuste al ancho disponible
+                });
             } else {
                 alert("El archivo convertido no parece estar en formato ABC legible.");
             }
