@@ -97,51 +97,67 @@ document.getElementById('update-btn').addEventListener('click', function() {
 //     pdf.save('partitura.pdf'); // Guarda el PDF con el nombre 'partitura.pdf'
 // });
 
-// Función para guardar la partitura como PDF
+// Función para guardar la partitura como PDF optimizado
 document.getElementById('save-pdf').addEventListener('click', async function () {
     const abcRenderElement = document.getElementById('abc-render');
 
-    // Usa html2canvas para capturar el contenido visible de #abc-render
+    // Configuración inicial para html2canvas
     const canvas = await html2canvas(abcRenderElement, {
         backgroundColor: "#FFFFFF",
-        scale: 2 // Aumenta la calidad del renderizado
+        scale: 4 // Alta calidad para impresión
     });
 
-    // Convierte el canvas a una imagen
+    // Convertir el contenido capturado en una imagen
     const imgData = canvas.toDataURL('image/png');
 
-    // Configuración inicial del PDF
+    // Configuración inicial del PDF (tamaño A4 en milímetros)
     const { jsPDF } = window.jspdf;
-    const pdf = new jsPDF('portrait', 'px', 'a4'); // PDF en modo vertical (A4)
+    const pdf = new jsPDF('portrait', 'mm', 'a4'); // Modo vertical
 
-    const pdfWidth = pdf.internal.pageSize.getWidth(); // Ancho de la página A4
-    const pdfHeight = pdf.internal.pageSize.getHeight(); // Altura de la página A4
-    const imgWidth = pdfWidth; // Ajusta la imagen al ancho del PDF
-    const imgHeight = (canvas.height * pdfWidth) / canvas.width; // Mantén la proporción
+    // Dimensiones de la página A4
+    const pdfWidth = pdf.internal.pageSize.getWidth(); // 210 mm
+    const pdfHeight = pdf.internal.pageSize.getHeight(); // 297 mm
 
-    let yOffset = 0; // Desplazamiento vertical inicial
+    // Dimensiones de la imagen (proporcional al tamaño A4)
+    const imgWidth = pdfWidth;
+    const imgHeight = (canvas.height * pdfWidth) / canvas.width;
 
-    // Si la imagen es más alta que el PDF, divide en páginas
+    // Variable para rastrear la posición de inicio de cada página
+    let yOffset = 0;
+
+    // Mientras haya contenido para agregar al PDF, seguimos dividiendo la imagen
     while (yOffset < imgHeight) {
-        const visibleHeight = Math.min(imgHeight - yOffset, pdfHeight); // Altura visible en la página
-        const canvasPart = document.createElement('canvas');
-        canvasPart.width = canvas.width;
-        canvasPart.height = (visibleHeight * canvas.width) / pdfWidth;
+        const remainingHeight = imgHeight - yOffset;
+        const visibleHeight = Math.min(remainingHeight, pdfHeight);
 
-        // Dibuja la parte visible del canvas
-        const ctx = canvasPart.getContext('2d');
-        ctx.drawImage(canvas, 0, yOffset, canvas.width, canvasPart.height, 0, 0, canvasPart.width, canvasPart.height);
+        // Crear un canvas temporal para recortar partes de la imagen
+        const tempCanvas = document.createElement('canvas');
+        tempCanvas.width = canvas.width;
+        tempCanvas.height = (visibleHeight * canvas.width) / pdfWidth;
 
-        // Añade la imagen al PDF
-        const partImgData = canvasPart.toDataURL('image/png');
-        pdf.addImage(partImgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+        const tempCtx = tempCanvas.getContext('2d');
+        tempCtx.drawImage(
+            canvas,
+            0, yOffset, // Origen en la imagen principal (usamos yOffset para ajustar el inicio de cada página)
+            canvas.width, tempCanvas.height, // Dimensiones a recortar
+            0, 0, // Origen en el canvas temporal
+            tempCanvas.width, tempCanvas.height // Dimensiones en el canvas temporal
+        );
 
-        yOffset += pdfHeight; // Mueve el desplazamiento
+        // Añadir la parte recortada al PDF
+        const partImgData = tempCanvas.toDataURL('image/png');
+        pdf.addImage(partImgData, 'PNG', 0, 0, imgWidth, (visibleHeight * imgWidth) / pdfWidth);
+
+        // Actualizamos el offset para la siguiente página
+        yOffset += visibleHeight; // Mover el desplazamiento para la próxima página
+
+        // Si aún hay contenido para agregar, se añade una nueva página
         if (yOffset < imgHeight) {
-            pdf.addPage(); // Añade una nueva página si queda contenido
+            pdf.addPage(); // Añadir nueva página si queda contenido
         }
     }
 
-    // Guarda el PDF
-    pdf.save('partitura.pdf');
+    // Guardar el PDF final
+    pdf.save('score.pdf');
 });
+
