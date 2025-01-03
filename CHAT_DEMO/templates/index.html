@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Chat Q&A with ABC Score</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/abcjs/6.4.4/abcjs-basic-min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            height: 100vh;
+        }
+        .left-panel, .right-panel {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+        .chat-container {
+            flex-grow: 1;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 10px;
+            overflow-y: auto;
+        }
+        .user-message {
+            background-color: #e6f2ff;
+            padding: 5px 10px;
+            border-radius: 10px;
+            margin: 5px 0;
+            align-self: flex-end;
+        }
+        .bot-message {
+            background-color: #f0f0f0;
+            padding: 5px 10px;
+            border-radius: 10px;
+            margin: 5px 0;
+        }
+        textarea {
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        button {
+            padding: 5px 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #abc-render {
+            width: 100%;
+            min-height: 400px;
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+    <div class="left-panel">
+        <h2>Chat Q&A</h2>
+        <div id="chat-container" class="chat-container"></div>
+        <textarea id="question-input" rows="3" placeholder="Ask a question..."></textarea>
+        <button onclick="askQuestion()">Send</button>
+        
+        <h2>ABC Notation Input</h2>
+        <textarea id="abc-input" rows="5" placeholder="Enter ABC notation here..."></textarea>
+        <button onclick="renderABC()">Render Score</button>
+    </div>
+    <div class="right-panel">
+        <h2>Score Display</h2>
+        <div id="abc-render"></div>
+    </div>
+
+    <script>
+        function askQuestion() {
+            const questionInput = document.getElementById('question-input');
+            const question = questionInput.value.trim();
+            if (question) {
+                addMessageToChat('user', question);
+                fetch('/ask', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ question: question }),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    addMessageToChat('bot', data.response);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    addMessageToChat('bot', 'Sorry, there was an error processing your request.');
+                });
+                questionInput.value = '';
+            }
+        }
+
+        function addMessageToChat(sender, message) {
+            const chatContainer = document.getElementById('chat-container');
+            const messageElement = document.createElement('div');
+            messageElement.textContent = message;
+            messageElement.className = sender === 'user' ? 'user-message' : 'bot-message';
+            chatContainer.appendChild(messageElement);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        function renderABC() {
+            const abcInput = document.getElementById('abc-input');
+            const abcNotation = abcInput.value;
+            if (abcNotation.includes("K:") || abcNotation.includes("X:")) {
+                const renderElement = document.getElementById('abc-render');
+                const containerWidth = renderElement.offsetWidth;
+                renderElement.style.width = "100%";
+                renderElement.style.minHeight = "400px";
+                ABCJS.renderAbc("abc-render", abcNotation, {
+                    responsive: "resize",
+                    staffwidth: containerWidth
+                });
+            } else {
+                alert("The ABC notation doesn't seem to be in a valid format.");
+            }
+        }
+
+        // Allow sending question with Enter key
+        document.getElementById('question-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                askQuestion();
+            }
+        });
+    </script>
+</body>
+</html>
