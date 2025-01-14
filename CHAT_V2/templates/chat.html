@@ -1,0 +1,142 @@
+<!-- chat.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Music Chat</title>
+    <style>
+        /* General Styling */
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f7fc;
+            color: #333;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: row;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Left Panel - Chat */
+        .chat-panel {
+            width: 30%;
+            background-color: #ffffff;
+            border-right: 1px solid #ddd;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-header {
+            padding: 20px;
+            background-color: #4CAF50;
+            color: #fff;
+            font-size: 1.2rem;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .chat-history {
+            flex-grow: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background-color: #fafafa;
+        }
+
+        .chat-message {
+            background-color: #e0e0e0;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .chat-input {
+            padding: 10px;
+            border-top: 1px solid #ddd;
+        }
+
+        .chat-input textarea {
+            width: 100%;
+            border-radius: 8px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            resize: none;
+        }
+
+        /* Right Panel - Main Content */
+        .content-panel {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .content-panel h1 {
+            font-size: 2rem;
+            color: #4CAF50;
+            margin-bottom: 20px;
+        }
+
+        .score-panel {
+            width: 100%;
+            max-width: 700px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            background-color: #fff;
+        }
+
+        .score-panel img {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+        }
+
+        .btn {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background-color 0.3s;
+        }
+
+        .btn:hover {
+            background-color: #388e3c;
+        }
+
+    </style>
+</head>
+<body>
+    <!-- Chat Screen -->
+    <div class="container">
+        <div class="chat-panel">
+            <div class="chat-header">Interactive Music Chat</div>
+            <div class="chat-history">
+                <div class="chat-message">The flight of the bumblebee</div>
+                <div class="chat-message">Yesterday</div>
+            </div>
+            <div class="chat-input">
+                <textarea rows="3" placeholder="What can I help you?"></textarea>
+            </div>
+        </div>
+
+        <!-- Score Display Screen -->
+        <div class="content-panel">
+            <h1>The flight of the bumblebee</h1>
+            <div class="score-panel">
+                <img src="https://via.placeholder.com/700x500" alt="Music Sheet">
+            </div>
+            <button class="btn">Render Score</button>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,188 @@
+/* General Styling */
+body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    height: 100vh;
+    background-color: #f4f7fc;
+    color: #333;
+}
+
+/* Left Panel */
+.left-panel {
+    flex: 1;
+    padding: 30px;
+    background-color: #ffffff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    margin: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+}
+
+/* Right Panel */
+.right-panel {
+    flex: 1.5;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    margin-top: 20px;
+    margin-right: 20px;
+}
+
+h2 {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+    color: #4CAF50;
+}
+
+/* Chat Container */
+.chat-container {
+    flex-grow: 1;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 15px;
+    background-color: #fafafa;
+    overflow-y: auto;
+    height: 300px;
+}
+
+.user-message {
+    background-color: #cce7ff;
+    padding: 10px;
+    border-radius: 15px;
+    margin: 5px 0;
+    align-self: flex-end;
+    max-width: 75%;
+    word-wrap: break-word;
+}
+
+.bot-message {
+    background-color: #f0f0f0;
+    padding: 10px;
+    border-radius: 15px;
+    margin: 5px 0;
+    max-width: 75%;
+    word-wrap: break-word;
+}
+
+/* Input Textareas */
+textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    resize: none;
+    font-size: 1rem;
+    font-family: 'Arial', sans-serif;
+}
+
+/* Buttons */
+button {
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+button:active {
+    background-color: #388e3c;
+}
+
+/* ABC Notation Panel  PRIMER: ON ES POSA EL TEXT ABC*/ 
+/* .abc-panel { 
+    display: none;
+    margin-top: 20px;
+    border-radius: 8px;
+    padding: 15px;
+    background-color: #fafafa;
+    border: 1px solid #e0e0e0;
+} */
+
+.abc-panel { 
+    display: none;
+    margin-top: 20px;
+    border-radius: 8px;
+    padding: 15px;
+    background-color: #fafafa;
+    border: 1px solid #e0e0e0;
+    box-sizing: border-box; /* Asegura que padding no aumente el ancho total */
+    width: 100%; /* Asegura que ocupe todo el ancho del contenedor padre */
+}
+
+/* Ajustar textarea dentro de .abc-panel */
+.abc-panel textarea {
+    width: calc(100% - 30px); /* Resta el padding del contenedor */
+    box-sizing: border-box;
+    margin: 0 auto; /* Centra el textarea */
+}
+
+/* Botón de renderizado */
+.abc-panel button {
+    width: 100%; /* Ocupa todo el ancho disponible */
+    box-sizing: border-box; /* Ajusta al ancho disponible sin sobresalir */
+    margin: 10px 0 0 0; /* Espaciado superior */
+}
+
+/* #abc-render {
+    width: 100%;
+    min-height: 300px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 10px;
+    background-color: #fafafa;
+    text-align: center;
+} */
+
+/* Contenedor de renderizado */
+#abc-render {
+    width: 100%; /* Asegura que ocupa todo el espacio */
+    min-height: 300px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 10px;
+    background-color: #fafafa;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+.toggle-abc-btn {
+    cursor: pointer;
+    background-color: transparent;
+    border: none;
+    font-size: 1.5rem;
+    color: #4CAF50;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 5px;
+    transition: color 0.3s ease;
+}
+
+.toggle-abc-btn:hover {
+    color: #388e3c;
+}
+
+/* Responsive Styling */
+@media (max-width: 768px) {
+    body {
+        flex-direction: column;
+    }
+    .left-panel, .right-panel {
+        margin: 10px;
+        padding: 15px;
+    }
+}
