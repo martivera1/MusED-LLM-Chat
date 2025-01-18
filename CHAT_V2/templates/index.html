@@ -1,75 +1,43 @@
-<!-- index.html -->
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Input ABC - Music Generator</title>
+    <title>Chat Llama</title>
     <style>
-        /* General Styling */
-        body {
-            font-family: 'Arial', sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f7fc;
-            color: #333;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-
-        .container {
-            background-color: #ffffff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            max-width: 400px;
-            width: 100%;
-        }
-
-        .container h1 {
-            color: #4CAF50;
-            font-size: 1.8rem;
-            margin-bottom: 20px;
-        }
-
-        textarea {
-            width: 100%;
-            height: 150px;
-            border-radius: 8px;
-            padding: 10px;
-            border: 1px solid #ddd;
-            resize: none;
-            margin-bottom: 20px;
-            font-family: 'Courier New', Courier, monospace;
-            font-size: 1rem;
-        }
-
-        .btn {
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-            font-size: 1rem;
-        }
-
-        .btn:hover {
-            background-color: #388e3c;
-        }
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        #chat { border: 1px solid #ccc; padding: 10px; max-width: 500px; margin: auto; }
+        .message { margin: 10px 0; }
+        .user { text-align: right; color: blue; }
+        .bot { text-align: left; color: green; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Paste ABC Notation</h1>
-        <form action="/chat" method="post">
-            <textarea name="abc" placeholder="Paste your ABC notation here..." required></textarea>
-            <button type="submit" class="btn">Generate Score</button>
-        </form>
-    </div>
+    <h1>Chat con Llama</h1>
+    <div id="chat"></div>
+    <input id="message" type="text" placeholder="Escribe tu mensaje" />
+    <button onclick="sendMessage()">Enviar</button>
+
+    <script>
+        async function sendMessage() {
+            const message = document.getElementById("message").value;
+            if (!message) return;
+
+            const chat = document.getElementById("chat");
+            chat.innerHTML += `<div class="message user">${message}</div>`;
+
+            const response = await fetch("http://127.0.0.1:5000/chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ message }),
+            });
+            const data = await response.json();
+            if (data.response) {
+                chat.innerHTML += `<div class="message bot">${data.response}</div>`;
+            } else {
+                chat.innerHTML += `<div class="message bot">Error: ${data.error}</div>`;
+            }
+        }
+    </script>
 </body>
 </html>

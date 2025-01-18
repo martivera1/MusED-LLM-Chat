@@ -1,36 +1,25 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, request, jsonify
+from transformers import AutoTokenizer, AutoModelForCausalLM
 
 app = Flask(__name__)
 
-# Ruta para la pantalla inicial
-@app.route("/", methods=["GET", "POST"])
-def index():
-    if request.method == "POST":
-        # Recibimos la notación ABC del formulario
-        abc_notation = request.form.get("abc")
-        
-        # Guardamos la notación en una variable global (o podríamos usar una sesión para manejarlo)
-        global current_abc
-        current_abc = abc_notation
-        
-        # Redirigimos al chat con la partitura cargada
-        return redirect(url_for("chat"))
-    
-    return render_template("index.html")
+# Cargar modelo y tokenizador
+model_name = "meta-llama/Llama-2-7b-hf"  # Cambia según tu modelo
+tokenizer = AutoTokenizer.from_pretrained(model_name)
+model = AutoModelForCausalLM.from_pretrained(model_name, device_map="auto")
 
-# Ruta para la pantalla de chat
-@app.route("/chat", methods=["GET", "POST"])
+@app.route("/chat", methods=["POST"])
 def chat():
-    global current_abc  # Aseguramos acceso a la variable con la notación ABC
-    
-    if request.method == "POST":
-        # Aquí podrías manejar interacciones de chat adicionales
-        user_input = request.form.get("user_input")
-        response = f"Procesando tu mensaje: {user_input}"
-        return render_template("chat.html", abc=current_abc, response=response)
-    
-    # Renderizamos la pantalla de chat con la partitura generada
-    return render_template("chat.html", abc=current_abc, response=None)
+    user_message = request.json.get("message")
+    if not user_message:
+        return jsonify({"error": "Mensaje vacío"}), 400
+
+    # Generar respuesta
+    inputs = tokenizer(user_message, return_tensors="pt").to("cuda")
+    outputs = model.generate(**inputs, max_length=50)
+    response = tokenizer.decode(outputs[0], skip_special_tokens=True)
+
+    return jsonify({"response": response})
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host="127.0.0.1", port=5000)
