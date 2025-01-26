@@ -6,6 +6,7 @@
     <title>Music Exercise Generator</title>
     <link href="https://unpkg.com/lucide-web/dist/umd/lucide.min.js" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/abcjs@6.0.1/bin/abcjs_basic_min.js"></script>
     <script src="{{ url_for('static', filename='js/chat.js') }}" defer></script>
 </head>
 <body>
@@ -39,6 +40,7 @@
             </div>
         </div>
 
+        <!-- Vista del chat -->
         <div id="chat-screen">
             <div class="header">
                 <button id="toggle-sidebar">
@@ -51,16 +53,10 @@
                 <h1>
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M9 18V5l12-2v13"/>
-                        <circle cx="6" cy="18" r="3"/>
+                        <circle cx="6" y="18" r="3"/>
                         <circle cx="18" y="16" r="3"/>
                     </svg>
                     Music Exercise Generator
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
-                        <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
-                        <line x1="12" y1="19" x2="12" y2="23"/>
-                        <line x1="8" y1="23" x2="16" y2="23"/>
-                    </svg>
                 </h1>
                 <div style="width: 24px"></div>
             </div>
@@ -77,6 +73,21 @@
                     </svg>
                 </button>
             </div>
+        </div>
+
+        <!-- Vista del visualizador ABC -->
+        <div id="abc-visualizer" style="display: none;">
+            <div class="header">
+                <button id="back-to-chat">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="6" y1="12" x2="18" y2="12"/>
+                        <line x1="12" y1="6" x2="12" y2="18"/>
+                    </svg>
+                    Back to Chat
+                </button>
+                <h2>ABC Notation Viewer</h2>
+            </div>
+            <div id="abc-visualization"></div>
         </div>
     </div>
 
