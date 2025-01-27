@@ -4,17 +4,33 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Canvas</title>
+  <script src="https://www.abcjs.net/abcjs-basic-min.js"></script>
   <script src="/static/js/canvas.js" defer></script>
-<link rel="stylesheet" href="/static/css/canvas.css">
+  <link rel="stylesheet" href="/static/css/canvas.css">
 </head>
 <body>
-  <div id="abc-container">
-    <!-- Aquí se cargará la notación ABC -->
-  </div>
-  <div id="chat-container">
-    <div id="chatbox"></div>
-    <input id="question" type="text" placeholder="Ask something...">
-    <button id="send-btn">Send</button>
+  <div id="container">
+    <!-- Sección del chat -->
+    <div id="sidebar">
+      <div id="chatbox"></div>
+      <div id="input-section">
+        <input id="question" type="text" placeholder="Ask something...">
+        <button id="send-btn">Send</button>
+      </div>
+    </div>
+
+    <!-- Línea divisoria -->
+    <div class="divider"></div>
+
+    <!-- Sección de la partitura -->
+    <div id="canvas-section">
+      <div id="abc-container">
+        <!-- Aquí se cargará la notación ABC en texto -->
+      </div>
+      <div id="abc-render">
+        <!-- Aquí se renderizará la partitura -->
+      </div>
+    </div>
   </div>
 </body>
 </html>

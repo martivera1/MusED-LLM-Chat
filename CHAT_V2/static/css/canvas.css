@@ -24,23 +24,6 @@ body {
   border-right: 1px solid #e5e7eb;
 }
 
-#new-chat-btn {
-  padding: 0.5rem 1rem;
-  background-color: #3b82f6;
-  color: white;
-  border: none;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  border-radius: 0.375rem;
-  margin: 1rem;
-  cursor: pointer;
-}
-
-#new-chat-btn:hover {
-  background-color: #2563eb;
-}
-
 #chatbox {
   flex: 1;
   padding: 1rem;
@@ -77,14 +60,31 @@ body {
   background-color: #2563eb;
 }
 
-/* Canvas de partitura */
+/* Línea divisoria */
+.divider {
+  width: 1px;
+  background-color: #e5e7eb;
+}
+
+/* Sección de la partitura */
 #canvas-section {
   width: 50%;
   padding: 1rem;
   background-color: #f9fafb;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
-.divider {
-  width: 1px;
-  background-color: #e5e7eb;
+#abc-container {
+  flex: 1;
+  overflow-y: auto;
+}
+
+#abc-render {
+  flex: 1;
+  min-height: 400px;
+  border: 1px solid #e5e7eb;
+  background-color: white;
+  padding: 1rem;
 }
