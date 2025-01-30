@@ -1,17 +1,18 @@
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", () => { //sttreaming chat.
+  //Obtain elements necessaries for interaction of the chat.
   const chatbox = document.getElementById("chatbox");
   const questionInput = document.getElementById("question");
   const sendBtn = document.getElementById("send-btn");
 
   sendBtn.addEventListener("click", async () => {
-    const question = questionInput.value.trim();
-    if (!question) return;
+    const question = questionInput.value.trim(); //we obtain what the user sends
+    if (!question) return; //no question case
 
     // Show the user's message
     chatbox.innerHTML += `<div class="message user">${question}</div>`;
     questionInput.value = "";
 
-    // Send the question to the backend
+    // Send the question to the backend --> HTTP REQUEST
     try {
       const response = await fetch("/ask", {
         method: "POST",
@@ -23,7 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const data = await response.json();
 
-      // Si se detecta notación ABC, redirigir a canvas.html
+      //Si se detecta notación ABC, redirigir a canvas.html
       if (data.response.includes("ABC notation detected")) {
         window.location.href = "/canvas";
         return;
