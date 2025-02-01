@@ -28,9 +28,10 @@ body {
   flex: 1;
   padding: 1rem;
   overflow-y: auto;
+  background-color: white;
   display: flex;
-  flex-direction: column;
-  gap: 1rem;
+  flex-direction: column; /* Apila los mensajes en columnas */
+  gap: 0.5rem; /* Espacio entre los mensajes */
 }
 
 #input-section {
@@ -90,4 +91,34 @@ body {
   background-color: white;
   padding: 1rem;
   text-align: center;
+}
+
+.message {
+  max-width: 80%; /* Mantiene el texto dentro de un rango manejable */
+  margin-bottom: 1rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  word-wrap: break-word; /* Asegura que el texto largo se ajuste */
+  display: inline-block; /* Permite que el contenedor se ajuste al contenido */
+}
+
+.message.user {
+  background-color: #e9d5ff;
+  color: #581c87;
+  margin-left: auto; /* Alinea el mensaje del usuario a la derecha */
+  text-align: right; /* Opcional: Alinea el texto a la derecha */
+  border-top-right-radius: 0;
+}
+
+.message.bot{
+  background-color: #dbeafe;
+  color: #1e40af;
+  margin-right: auto; /* Alinea el mensaje del bot a la izquierda */
+  text-align: left; /* Asegura la alineación del texto a la izquierda */
+  border-top-left-radius: 0;
+}
+
+.message.bot strong {
+  color: inherit; /* Hereda el color de .message.bot */
+  font-weight: bold;
 }
