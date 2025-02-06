@@ -125,6 +125,8 @@ import abcjs from 'https://cdn.jsdelivr.net/npm/abcjs@6.4.4/+esm';
 //       });
 //     });
 
+
+
 document.addEventListener("DOMContentLoaded", async () => {
     const chatbox = document.getElementById("chatbox");
     const questionInput = document.getElementById("question");
@@ -157,7 +159,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 });
 
                 // Mostrar un mensaje en el chat indicando que se ha renderizado la partitura
-                chatbox.innerHTML += `<div class="message bot">Partitura renderizada correctamente.</div>`;
+                chatbox.innerHTML += `<div class="message bot">Score rendered.</div>`;
                 chatbox.scrollTop = chatbox.scrollHeight;
             } else {
                 console.error("Notación ABC no válida.");
@@ -201,19 +203,14 @@ document.addEventListener("DOMContentLoaded", async () => {
             let botMessage = `<div class="message bot">`;
             chatbox.innerHTML += botMessage;
 
-            let abcDetected = false;
+            let fullResponse = ""; // Almacena la respuesta completa del backend
 
             while (true) {
                 const { done, value } = await reader.read();
                 if (done) break;
 
                 const chunk = decoder.decode(value, { stream: true });
-
-                // Verificar si se detecta notación ABC
-                if (chunk.includes("ABC notation detected")) {
-                    abcDetected = true;
-                    break;
-                }
+                fullResponse += chunk; // Acumula la respuesta completa
 
                 // Mostrar la respuesta del bot en el chat
                 botMessage += chunk;
@@ -221,22 +218,28 @@ document.addEventListener("DOMContentLoaded", async () => {
                 chatbox.scrollTop = chatbox.scrollHeight;
             }
 
-            if (abcDetected) {
-                // Mostrar un mensaje en el chat indicando que se ha detectado notación ABC
-                chatbox.innerHTML += `<div class="message bot">Detectada notación ABC. Renderizando partitura...</div>`;
-                chatbox.scrollTop = chatbox.scrollHeight;
+            
+
+            // Cerrar el mensaje del bot
+            botMessage += "</div>";
+            chatbox.lastChild.innerHTML = botMessage;
+
+            // Verificar si la respuesta contiene notación ABC
+            if (fullResponse.includes("ABC notation detected")) {
+                // // Mostrar un mensaje en el chat indicando que se ha detectado notación ABC
+                // chatbox.innerHTML += `<div class="message bot">Detectada notación ABC. Renderizando partitura...</div>`;
+                // chatbox.scrollTop = chatbox.scrollHeight;
+                console.log("Detected")
 
                 // Renderizar la notación ABC
                 await renderAbcNotation();
-            } else {
-                // Cerrar el mensaje del bot
-                botMessage += "</div>";
-                chatbox.lastChild.innerHTML = botMessage;
             }
+
+
+
         } catch (error) {
             chatbox.innerHTML += `<div class="message bot">Error: ${error.message}</div>`;
             chatbox.scrollTop = chatbox.scrollHeight;
         }
     });
 });
-    

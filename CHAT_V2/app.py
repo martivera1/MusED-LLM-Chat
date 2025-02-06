@@ -1,5 +1,7 @@
 import os
 import tempfile
+import time
+import re
 from flask import Flask, render_template, request, jsonify,url_for,send_file,stream_with_context,Response
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_ollama.llms import OllamaLLM
@@ -88,9 +90,10 @@ def ask():
                 with open(abc_file_path, "w") as f:
                     f.write(abc_notation)
                 
+                
                 # Enviar una respuesta para redirigir al visor ABC
                 yield "ABC notation detected"
-                return
+                #return
             
             # Generar la respuesta progresivamente
             #yield "Chat: \n"  # Mensaje inicial
@@ -104,8 +107,6 @@ def ask():
 
     except Exception as e:
         return jsonify({"response": f"Error: {str(e)}"}), 500
-
-
     
 
 @app.route('/get_abc', methods=['GET'])
