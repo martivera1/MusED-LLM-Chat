@@ -46,17 +46,89 @@
 // });
 
 
-document.addEventListener('DOMContentLoaded', () => {
+// document.addEventListener('DOMContentLoaded', () => {
+//   const sendBtn = document.getElementById("send-btn");
+//   const questionInput = document.getElementById("question");
+//   const chatbox = document.getElementById("chatbox");
+
+//   sendBtn.addEventListener("click", async () => {
+//     const question = questionInput.value.trim();
+//     if (!question) return;
+
+//     chatbox.innerHTML += `<div class="message user">${question}</div>`;
+//     questionInput.value = "";
+
+//     try {
+//       const response = await fetch("/ask", {
+//         method: "POST",
+//         headers: { "Content-Type": "application/json" },
+//         body: JSON.stringify({ question }),
+//       });
+
+//       if (!response.ok) throw new Error("Failed to fetch response");
+
+//       const reader = response.body.getReader();
+//       const decoder = new TextDecoder("utf-8");
+
+//       let botMessage = `<div class="message bot">`;
+//       chatbox.innerHTML += botMessage;
+
+//       let abcDetected = false;
+
+//       while (true) {
+//         const { done, value } = await reader.read();
+//         if (done) break;
+
+//         const chunk = decoder.decode(value, { stream: true });
+
+//         if (chunk.includes("ABC notation detected")) {
+//           abcDetected = true;
+//           break;
+//         }
+
+//         botMessage += chunk;
+//         chatbox.lastChild.innerHTML = botMessage;
+//         chatbox.scrollTop = chatbox.scrollHeight;
+//       }
+
+//       if (abcDetected) {
+//         chatbox.lastChild.innerHTML = `<div class="message bot">Redirecting to ABC viewer...</div>`;
+//         setTimeout(() => {
+//           window.location.href = "/canvas";
+//         }, 500);
+//       } else {
+//         botMessage += "</div>";
+//         chatbox.lastChild.innerHTML = botMessage;
+//       }
+//     } catch (error) {
+//       chatbox.innerHTML += `<div class="message bot">Error: ${error.message}</div>`;
+//     }
+//   });
+// });
+
+document.addEventListener("DOMContentLoaded", () => {
   const sendBtn = document.getElementById("send-btn");
   const questionInput = document.getElementById("question");
   const chatbox = document.getElementById("chatbox");
+
+  const formatText = (text) => {
+    return text
+      .replace(/\n/g, "<br>") // Reemplazar saltos de línea por <br>
+      .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>"); // Convertir **texto** en <strong>texto</strong>
+  };
 
   sendBtn.addEventListener("click", async () => {
     const question = questionInput.value.trim();
     if (!question) return;
 
-    chatbox.innerHTML += `<div class="message user">${question}</div>`;
+    // Mostrar el mensaje del usuario con formato
+    const userMessageDiv = document.createElement("div");
+    userMessageDiv.classList.add("message", "user");
+    userMessageDiv.innerHTML = formatText(question);
+    chatbox.appendChild(userMessageDiv);
+
     questionInput.value = "";
+    chatbox.scrollTop = chatbox.scrollHeight;
 
     try {
       const response = await fetch("/ask", {
@@ -70,9 +142,13 @@ document.addEventListener('DOMContentLoaded', () => {
       const reader = response.body.getReader();
       const decoder = new TextDecoder("utf-8");
 
-      let botMessage = `<div class="message bot">`;
-      chatbox.innerHTML += botMessage;
+      // Crear un nuevo div para el mensaje del bot
+      const botMessageDiv = document.createElement("div");
+      botMessageDiv.classList.add("message", "bot");
+      chatbox.appendChild(botMessageDiv);
+      chatbox.scrollTop = chatbox.scrollHeight;
 
+      let fullResponse = "";
       let abcDetected = false;
 
       while (true) {
@@ -86,25 +162,25 @@ document.addEventListener('DOMContentLoaded', () => {
           break;
         }
 
-        botMessage += chunk;
-        chatbox.lastChild.innerHTML = botMessage;
+        fullResponse += chunk;
+        botMessageDiv.innerHTML = formatText(fullResponse);
         chatbox.scrollTop = chatbox.scrollHeight;
       }
 
       if (abcDetected) {
-        chatbox.lastChild.innerHTML = `<div class="message bot">Redirecting to ABC viewer...</div>`;
+        botMessageDiv.innerHTML = `<div class="message bot">Redirecting to ABC viewer...</div>`;
         setTimeout(() => {
           window.location.href = "/canvas";
         }, 500);
-      } else {
-        botMessage += "</div>";
-        chatbox.lastChild.innerHTML = botMessage;
       }
+
     } catch (error) {
       chatbox.innerHTML += `<div class="message bot">Error: ${error.message}</div>`;
+      chatbox.scrollTop = chatbox.scrollHeight;
     }
   });
 });
+
 
 
 
