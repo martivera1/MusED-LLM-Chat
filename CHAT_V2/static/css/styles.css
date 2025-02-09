@@ -106,7 +106,7 @@ body {
   background-color: #e9d5ff;
   color: #581c87;
   margin-left: auto; /* Alinea el mensaje del usuario a la derecha */
-  text-align: right; /* Opcional: Alinea el texto a la derecha */
+  text-align: left; /* Opcional: Alinea el texto a la derecha */
   border-top-right-radius: 0;
 }
 

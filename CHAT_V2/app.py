@@ -71,7 +71,7 @@ def ask():
     try:
         data = request.get_json()
         user_question = data.get("question", "")
-
+        print(f"Received question: {user_question}")
         if not user_question:
             return jsonify({"response": "Please provide a question."})
         import re
@@ -102,7 +102,7 @@ def ask():
                 yield f"{chunk} "
                 import time
                 time.sleep(0.1)  # Simular retraso para streaming
-
+        print("Returning streaming response...")
         return Response(stream_with_context(generate_response()), content_type="text/event-stream")
 
     except Exception as e:

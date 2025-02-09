@@ -1,5 +1,5 @@
 X:1
-T:The Weeknd
+T:GYAL
 L:1/8
 M:4/4
 I:linebreak 

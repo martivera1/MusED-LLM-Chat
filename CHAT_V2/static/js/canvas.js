@@ -250,11 +250,17 @@ document.addEventListener("DOMContentLoaded", async () => {
     const sendBtn = document.getElementById("send-btn");
     const abcRender = document.getElementById("abc-render");
 
+    const formatText = (text) => {
+        return text
+            .replace(/\n/g, "<br>") // Respeta saltos de línea
+            .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>"); // Convierte **texto** en negrita
+    };
+
     const renderAbcNotation = async () => {
         try {
             const response = await fetch("/get_abc");
             if (!response.ok) throw new Error(`Error fetching ABC file: ${response.status} ${response.statusText}`);
-            
+
             const abcText = await response.text();
             if (abcText.includes("K:") || abcText.includes("X:")) {
                 console.log("Notación ABC válida detectada:", abcText);
@@ -262,18 +268,30 @@ document.addEventListener("DOMContentLoaded", async () => {
                 abcRender.style.minHeight = "400px";
                 abcjs.renderAbc("abc-render", abcText, { responsive: "resize", staffwidth: abcRender.offsetWidth });
 
-                chatbox.innerHTML += `<div class="message bot">Score rendered.</div>`;
+                // Agregar mensaje del bot con formato
+                const botMessageDiv = document.createElement("div");
+                botMessageDiv.classList.add("message", "bot");
+                botMessageDiv.innerHTML = "Score rendered.";
+                chatbox.appendChild(botMessageDiv);
                 chatbox.scrollTop = chatbox.scrollHeight;
             } else {
                 console.error("Notación ABC no válida.");
                 abcRender.innerHTML = "<p>La notación ABC no es válida.</p>";
-                chatbox.innerHTML += `<div class="message bot">Error: La notación ABC no es válida.</div>`;
+
+                const botMessageDiv = document.createElement("div");
+                botMessageDiv.classList.add("message", "bot");
+                botMessageDiv.innerHTML = "Error: La notación ABC no es válida.";
+                chatbox.appendChild(botMessageDiv);
                 chatbox.scrollTop = chatbox.scrollHeight;
             }
         } catch (error) {
             console.error("Error al cargar la notación ABC:", error);
             abcRender.innerHTML = `<p>Error loading ABC notation: ${error.message}</p>`;
-            chatbox.innerHTML += `<div class="message bot">Error: ${error.message}</div>`;
+
+            const botMessageDiv = document.createElement("div");
+            botMessageDiv.classList.add("message", "bot");
+            botMessageDiv.innerHTML = `Error: ${error.message}`;
+            chatbox.appendChild(botMessageDiv);
             chatbox.scrollTop = chatbox.scrollHeight;
         }
     };
@@ -284,8 +302,12 @@ document.addEventListener("DOMContentLoaded", async () => {
         const question = questionInput.value.trim();
         if (!question) return;
 
-        // Agregar mensaje del usuario al chat
-        chatbox.innerHTML += `<div class="message user">${question}</div>`;
+        // Crear y agregar el mensaje del usuario con formato
+        const userMessageDiv = document.createElement("div");
+        userMessageDiv.classList.add("message", "user");
+        userMessageDiv.innerHTML = formatText(question);
+        chatbox.appendChild(userMessageDiv);
+
         questionInput.value = "";
         chatbox.scrollTop = chatbox.scrollHeight;
 
@@ -309,17 +331,30 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             let fullResponse = "";
 
+            // while (true) {
+            //     const { done, value } = await reader.read();
+            //     if (done) break;
+
+            //     const chunk = decoder.decode(value, { stream: true });
+            //     fullResponse += chunk;
+
+            //     // Actualizar el mensaje con formato
+            //     botMessageDiv.innerHTML = formatText(fullResponse);
+            //     chatbox.scrollTop = chatbox.scrollHeight;
+            // }
+
             while (true) {
                 const { done, value } = await reader.read();
                 if (done) break;
-
+            
                 const chunk = decoder.decode(value, { stream: true });
-                fullResponse += chunk;
-
-                // Actualizar solo el contenido de botMessageDiv
-                botMessageDiv.innerHTML = fullResponse.replace(/\n/g, "<br>");
-                chatbox.scrollTop = chatbox.scrollHeight;
+            
+                // Agregar solo el nuevo fragmento, sin sobrescribir
+                botMessageDiv.innerHTML += formatText(chunk);
             }
+            
+            // Hacer scroll solo una vez al final
+            chatbox.scrollTop = chatbox.scrollHeight;            
 
             // Si la respuesta menciona notación ABC, renderizarla
             if (fullResponse.includes("ABC notation detected")) {
@@ -328,8 +363,12 @@ document.addEventListener("DOMContentLoaded", async () => {
             }
 
         } catch (error) {
-            chatbox.innerHTML += `<div class="message bot">Error: ${error.message}</div>`;
+            const botMessageDiv = document.createElement("div");
+            botMessageDiv.classList.add("message", "bot");
+            botMessageDiv.innerHTML = `Error: ${error.message}`;
+            chatbox.appendChild(botMessageDiv);
             chatbox.scrollTop = chatbox.scrollHeight;
         }
     });
 });
+
