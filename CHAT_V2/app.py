@@ -5,6 +5,7 @@ import re
 from flask import Flask, render_template, request, jsonify,url_for,send_file,stream_with_context,Response
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_ollama.llms import OllamaLLM
+import uuid
 
 app = Flask(__name__)
 # Crear la carpeta temporal_files si no existe
@@ -85,8 +86,10 @@ def ask():
                 global abc_notation
                 abc_notation = abc_match.group(0)  # Extraer solo la notación ABC detectada
                 
+                unique_id = str(uuid.uuid4())[:8]
+                abc_file_path = os.path.join(TEMP_DIR, f"notation_{unique_id}.abc.txt")
                 # Crear el archivo en la carpeta temporal_files
-                abc_file_path = os.path.join(TEMP_DIR, "notation.abc.txt")
+                #abc_file_path = os.path.join(TEMP_DIR, "notation.abc.txt")
                 with open(abc_file_path, "w") as f:
                     f.write(abc_notation)
                 
@@ -109,16 +112,33 @@ def ask():
         return jsonify({"response": f"Error: {str(e)}"}), 500
     
 
+# @app.route('/get_abc', methods=['GET'])
+# def get_abc():
+#     global abc_notation
+#     if abc_notation:
+#         # Devuelve el archivo desde la carpeta temporal_files
+#         abc_file_path = os.path.join(TEMP_DIR, "notation.abc.txt")
+#         if os.path.exists(abc_file_path):
+#             return send_file(abc_file_path, as_attachment=False, mimetype='text/plain')
+#         else:
+#             return jsonify({'error': 'ABC file not found.'}), 404
+#     return jsonify({'error': 'No ABC notation available.'}), 404
+
 @app.route('/get_abc', methods=['GET'])
 def get_abc():
-    global abc_notation
-    if abc_notation:
-        # Devuelve el archivo desde la carpeta temporal_files
-        abc_file_path = os.path.join(TEMP_DIR, "notation.abc.txt")
-        if os.path.exists(abc_file_path):
-            return send_file(abc_file_path, as_attachment=False, mimetype='text/plain')
-        else:
-            return jsonify({'error': 'ABC file not found.'}), 404
+    # Obtener el archivo más reciente
+    abc_files = sorted(
+        [f for f in os.listdir(TEMP_DIR) if f.endswith(".abc.txt")],
+        key=lambda x: os.path.getmtime(os.path.join(TEMP_DIR, x)),
+        reverse=True
+    )
+    
+    if abc_files:
+        return send_file(
+            os.path.join(TEMP_DIR, abc_files[0]),
+            as_attachment=False,
+            mimetype='text/plain'
+        )
     return jsonify({'error': 'No ABC notation available.'}), 404
 
 if __name__ == '__main__':
