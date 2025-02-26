@@ -1,122 +1,5 @@
 import abcjs from 'https://cdn.jsdelivr.net/npm/abcjs@6.4.4/+esm';
 
-// document.addEventListener("DOMContentLoaded", async () => {
-//     const chatbox = document.getElementById("chatbox");
-//     const questionInput = document.getElementById("question");
-//     const sendBtn = document.getElementById("send-btn");
-//     const abcRender = document.getElementById("abc-render"); // Contenedor para la partitura
-
-//     // Función para renderizar la notación ABC
-//     const renderAbcNotation = async () => {
-//         try {
-//             const response = await fetch("/get_abc");
-
-//             if (!response.ok) {
-//                 throw new Error(`Error fetching ABC file: ${response.status} ${response.statusText}`);
-//             }
-
-//             // Leer el contenido del archivo como texto
-//             const abcText = await response.text();
-
-//             // Renderizar la partitura si la notación ABC es válida
-//             if (abcText.includes("K:") || abcText.includes("X:")) {
-//                 console.log("Notación ABC válida detectada:", abcText);
-
-//                 abcRender.style.width = "100%";
-//                 abcRender.style.minHeight = "400px";
-
-//                 // Renderizar la notación ABC
-//                 abcjs.renderAbc("abc-render", abcText, {
-//                     responsive: "resize",
-//                     staffwidth: abcRender.offsetWidth, // Ajusta al ancho disponible
-//                 });
-
-//                 // Mostrar un mensaje en el chat indicando que se ha renderizado la partitura
-//                 chatbox.innerHTML += `<div class="message bot">Score rendered.</div>`;
-//                 chatbox.scrollTop = chatbox.scrollHeight;
-//             } else {
-//                 console.error("Notación ABC no válida.");
-//                 abcRender.innerHTML = "<p>La notación ABC no es válida.</p>";
-//                 chatbox.innerHTML += `<div class="message bot">Error: La notación ABC no es válida.</div>`;
-//                 chatbox.scrollTop = chatbox.scrollHeight;
-//             }
-//         } catch (error) {
-//             console.error("Error al cargar la notación ABC:", error);
-//             abcRender.innerHTML = `<p>Error loading ABC notation: ${error.message}</p>`;
-//             chatbox.innerHTML += `<div class="message bot">Error: ${error.message}</div>`;
-//             chatbox.scrollTop = chatbox.scrollHeight;
-//         }
-//     };
-
-//     // Cargar y renderizar la notación ABC al inicio
-//     renderAbcNotation();
-
-//     // Configurar interacción con el chat
-//     sendBtn.addEventListener("click", async () => {
-//         const question = questionInput.value.trim();
-//         if (!question) return;
-
-//         // Mostrar la pregunta del usuario en el chat
-//         chatbox.innerHTML += `<div class="message user">${question}</div>`;
-//         questionInput.value = "";
-//         chatbox.scrollTop = chatbox.scrollHeight;
-
-//         try {
-//             const response = await fetch("/ask", {
-//                 method: "POST",
-//                 headers: { "Content-Type": "application/json" },
-//                 body: JSON.stringify({ question }),
-//             });
-
-//             if (!response.ok) throw new Error("Failed to fetch response");
-
-//             const reader = response.body.getReader();
-//             const decoder = new TextDecoder("utf-8");
-
-//             let botMessage = `<div class="message bot">`;
-//             chatbox.innerHTML += botMessage;
-
-//             let fullResponse = ""; // Almacena la respuesta completa del backend
-
-//             while (true) {
-//                 const { done, value } = await reader.read();
-//                 if (done) break;
-
-//                 const chunk = decoder.decode(value, { stream: true });
-//                 fullResponse += chunk; // Acumula la respuesta completa
-
-//                 // Mostrar la respuesta del bot en el chat
-//                 botMessage += chunk;
-//                 chatbox.lastChild.innerHTML = botMessage;
-//                 chatbox.scrollTop = chatbox.scrollHeight;
-//             }
-
-            
-
-//             // Cerrar el mensaje del bot
-//             botMessage += "</div>";
-//             chatbox.lastChild.innerHTML = botMessage;
-
-//             // Verificar si la respuesta contiene notación ABC
-//             if (fullResponse.includes("ABC notation detected")) {
-//                 // // Mostrar un mensaje en el chat indicando que se ha detectado notación ABC
-//                 // chatbox.innerHTML += `<div class="message bot">Detectada notación ABC. Renderizando partitura...</div>`;
-//                 // chatbox.scrollTop = chatbox.scrollHeight;
-//                 console.log("Detected")
-
-//                 // Renderizar la notación ABC
-//                 await renderAbcNotation();
-//             }
-
-
-
-//         } catch (error) {
-//             chatbox.innerHTML += `<div class="message bot">Error: ${error.message}</div>`;
-//             chatbox.scrollTop = chatbox.scrollHeight;
-//         }
-//     });
-// });
-
 document.addEventListener("DOMContentLoaded", async () => {
     const chatbox = document.getElementById("chatbox");
     const questionInput = document.getElementById("question");
@@ -134,23 +17,117 @@ document.addEventListener("DOMContentLoaded", async () => {
         return text.includes("X:") && text.includes("K:");
     };
 
+    // const addRenderButton = (messageDiv, abcText) => {
+    //     const buttonContainer = document.createElement("div");
+    //     buttonContainer.className = "button-container";
+
+    //     const renderButton = document.createElement("button");
+    //     renderButton.className = "render-button";
+    //     renderButton.textContent = "🎼 Render Score";
+        
+    //     // Almacenar la notación ABC en el botón
+    //     renderButton.dataset.abc = abcText;
+
+    //     renderButton.onclick = async () => {
+    //         renderButton.disabled = true;
+    //         await renderAbcNotation(renderButton.dataset.abc); // Renderizar el ABC específico
+    //         abcRender.classList.add("visible");
+    //     };
+
+    //     buttonContainer.appendChild(renderButton);
+    //     messageDiv.appendChild(buttonContainer);
+    // };
+
+    let currentRenderId = 0;
+    const rendersHistory = {}; // Almacena { id: { abcText, element } }
+
+    const renderAbcNotation = async (abcText, renderId = Date.now()) => {
+        try {
+            // Limpiar solo si es un nuevo render (no histórico)
+            if (!rendersHistory[renderId]) {
+                abcRender.innerHTML = '';
+            }
+
+            // Crear nuevo contenedor para cada render
+            const renderContainer = document.createElement("div");
+            renderContainer.id = `render-${renderId}`;
+            renderContainer.className = "abc-score";
+            
+            // Renderizar en el nuevo contenedor
+            abcjs.renderAbc(renderContainer, abcText, {
+                responsive: "resize",
+                staffwidth: abcRender.offsetWidth
+            });
+
+            // Añadir al historial
+            rendersHistory[renderId] = {
+                abcText,
+                element: renderContainer
+            };
+
+            // Mostrar solo el último render
+            abcRender.appendChild(renderContainer);
+            currentRenderId = renderId;
+
+            // Botones de navegación (opcional)
+            // addNavigationControls(renderId);
+
+        } catch (error) {
+            console.error("Error al renderizar:", error);
+            abcRender.innerHTML = `<p>Error: ${error.message}</p>`;
+        }
+    };
+
+    // const addNavigationControls = (currentId) => {
+    //     const controls = document.createElement("div");
+    //     controls.className = "render-controls";
+    
+    //     // Botón anterior
+    //     const prevButton = document.createElement("button");
+    //     prevButton.textContent = "◀";
+    //     prevButton.onclick = () => showRender(currentId - 1);
+    //     prevButton.disabled = currentId === 0;
+    
+    //     // Botón siguiente
+    //     const nextButton = document.createElement("button");
+    //     nextButton.textContent = "▶";
+    //     nextButton.onclick = () => showRender(currentId + 1);
+    //     nextButton.disabled = currentId === Object.keys(rendersHistory).length - 1;
+    
+    //     controls.appendChild(prevButton);
+    //     controls.appendChild(nextButton);
+    //     abcRender.prepend(controls);
+    // };
+    
+    // Función para mostrar renders históricos
+    // const showRender = (renderId) => {
+    //     if (rendersHistory[renderId]) {
+    //         abcRender.innerHTML = '';
+    //         abcRender.appendChild(rendersHistory[renderId].element);
+    //         currentRenderId = renderId;
+    //         addNavigationControls(renderId);
+    //     }
+    // };
+
     const addRenderButton = (messageDiv, abcText) => {
         const buttonContainer = document.createElement("div");
         buttonContainer.className = "button-container";
-
+    
         const renderButton = document.createElement("button");
         renderButton.className = "render-button";
         renderButton.textContent = "🎼 Render Score";
-        
-        // Almacenar la notación ABC en el botón
         renderButton.dataset.abc = abcText;
-
+    
         renderButton.onclick = async () => {
-            renderButton.disabled = true;
-            await renderAbcNotation(renderButton.dataset.abc); // Renderizar el ABC específico
-            abcRender.classList.add("visible");
+            try {
+                renderButton.disabled = true;
+                await renderAbcNotation(renderButton.dataset.abc);
+                abcRender.classList.add("visible");
+            } finally {
+                renderButton.disabled = false; // Rehabilitar después de renderizar
+            }
         };
-
+    
         buttonContainer.appendChild(renderButton);
         messageDiv.appendChild(buttonContainer);
     };
@@ -305,30 +282,30 @@ document.addEventListener("DOMContentLoaded", async () => {
     //     }
     // };
 
-    const renderAbcNotation = async (abcText) => {
-        try {
-            abcRender.innerHTML = "";
-            abcRender.style.display = "block";
+    // const renderAbcNotation = async (abcText) => {
+    //     try {
+    //         abcRender.innerHTML = "";
+    //         abcRender.style.display = "block";
             
-            if (abcText.includes("K:") || abcText.includes("X:")) {
-                abcjs.renderAbc("abc-render", abcText, {
-                    responsive: "resize",
-                    staffwidth: abcRender.offsetWidth
-                });
+    //         if (abcText.includes("K:") || abcText.includes("X:")) {
+    //             abcjs.renderAbc("abc-render", abcText, {
+    //                 responsive: "resize",
+    //                 staffwidth: abcRender.offsetWidth
+    //             });
                 
-                // Mensaje de éxito opcional
-                const successMsg = document.createElement("div");
-                successMsg.classList.add("message", "bot");
-                successMsg.innerHTML = "Partitura renderizada ✔️";
-                chatbox.appendChild(successMsg);
-            }
+    //             // Mensaje de éxito opcional
+    //             const successMsg = document.createElement("div");
+    //             successMsg.classList.add("message", "bot");
+    //             successMsg.innerHTML = "Partitura renderizada ✔️";
+    //             chatbox.appendChild(successMsg);
+    //         }
             
-            abcRender.classList.add("visible");
-        } catch (error) {
-            console.error("Error al renderizar la notación ABC:", error);
-            abcRender.innerHTML = `<p>Error: ${error.message}</p>`;
-        }
-    };
+    //         abcRender.classList.add("visible");
+    //     } catch (error) {
+    //         console.error("Error al renderizar la notación ABC:", error);
+    //         abcRender.innerHTML = `<p>Error: ${error.message}</p>`;
+    //     }
+    // };
 
 });
 
