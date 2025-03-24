@@ -1,55 +1,56 @@
 import abcjs from 'https://cdn.jsdelivr.net/npm/abcjs@6.4.4/+esm';
 
-document.addEventListener("DOMContentLoaded", async () => {
+document.addEventListener("DOMContentLoaded", () => {
     const chatbox = document.getElementById("chatbox");
     const questionInput = document.getElementById("question");
     const sendBtn = document.getElementById("send-btn");
     const abcRender = document.getElementById("abc-render");
+    let rendersHistory = {};
+    let currentRenderId = 0;
+
+    // Función para cambiar entre vistas
+    // Cambiar entre vistas: Si showCanvas es true, se muestran ambas secciones lado a lado
+    window.toggleView = (showCanvas = false) => {
+        const chatSection = document.getElementById("chat-section");
+        const canvasSection = document.getElementById("canvas-section");
+        
+        if (showCanvas) {
+            chatSection.style.display = "flex";      // Mantiene visible el chat
+            canvasSection.style.display = "flex";      // Muestra la partitura
+        } else {
+            chatSection.style.display = "flex";
+            canvasSection.style.display = "none";
+        }
+    };
 
     const formatText = (text) => {
         return text
-            .replace(/\n/g, "<br>") // Respeta saltos de línea
-            .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>"); // Convierte **texto** en negrita
+            .replace(/\n/g, "<br>")
+            .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
     };
 
     const isAbcNotation = (text) => {
-        // Detectar si el texto contiene estructura básica de ABC
         return text.includes("X:") && text.includes("K:");
     };
 
-    const rendersHistory = {}; // Almacena { id: { abcText, element } }
-
-    const renderAbcNotation = async (abcText, renderId = Date.now()) => {
-        var currentRenderId;
+    const renderAbcNotation = async (abcText) => {
         try {
-            // Limpiar solo si es un nuevo render (no histórico)
-            if (!rendersHistory[renderId]) {
-                abcRender.innerHTML = '';
-            }
-
-            // Crear nuevo contenedor para cada render
+            abcRender.innerHTML = '';
+            const renderId = Date.now();
+            
             const renderContainer = document.createElement("div");
-            renderContainer.id = `render-${renderId}`;
             renderContainer.className = "abc-score";
             
-            // Renderizar en el nuevo contenedor
             abcjs.renderAbc(renderContainer, abcText, {
                 responsive: "resize",
                 staffwidth: abcRender.offsetWidth
             });
 
-            // Añadir al historial
-            rendersHistory[renderId] = {
-                abcText,
-                element: renderContainer
-            };
-
-            // Mostrar solo el último render
-            abcRender.appendChild(renderContainer);
+            rendersHistory[renderId] = { abcText, element: renderContainer };
             currentRenderId = renderId;
-
-            // Botones de navegación (opcional)
-            // addNavigationControls(renderId);
+            
+            abcRender.appendChild(renderContainer);
+            toggleView(true);
 
         } catch (error) {
             console.error("Error al renderizar:", error);
@@ -60,27 +61,15 @@ document.addEventListener("DOMContentLoaded", async () => {
     const addRenderButton = (messageDiv, abcText) => {
         const buttonContainer = document.createElement("div");
         buttonContainer.className = "button-container";
-    
+
         const renderButton = document.createElement("button");
         renderButton.className = "render-button";
         renderButton.textContent = "🎼 Render Score";
-        renderButton.dataset.abc = abcText;
-    
-        renderButton.onclick = async () => {
-            try {
-                renderButton.disabled = true;
-                await renderAbcNotation(renderButton.dataset.abc);
-                abcRender.classList.add("visible");
-            } finally {
-                renderButton.disabled = false; // Rehabilitar después de renderizar
-            }
-        };
-    
+        renderButton.onclick = () => renderAbcNotation(abcText);
+
         buttonContainer.appendChild(renderButton);
         messageDiv.appendChild(buttonContainer);
     };
-
-    //renderAbcNotation();
 
     sendBtn.addEventListener("click", async () => {
         const question = questionInput.value.trim();
@@ -153,6 +142,4 @@ document.addEventListener("DOMContentLoaded", async () => {
             chatbox.scrollTop = chatbox.scrollHeight;
         }
     });
-
 });
-

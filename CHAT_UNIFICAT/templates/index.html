@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music Chat</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/abcjs@6.4.4/dist/abcjs-basic-min.js"></script>
+</head>
+<body>
+    <div id="container">
+        <!-- Sección del chat -->
+        <div id="chat-screen">
+            <div class="header">
+                <h1>Music Chat</h1>
+            </div>
+            <div id="chatbox"></div>
+            <div id="input-section">
+                <textarea id="question" rows="3" placeholder="Ask a question..."></textarea>
+                <button id="send-btn">Send</button>
+            </div>
+        </div>
+        
+        <!-- Sección de visualización de notación ABC -->
+        <div id="abc-visualizer" class="hidden">
+            <div class="header">
+                <button id="close-abc">Close</button>
+                <h2>ABC Notation Viewer</h2>
+            </div>
+            <div id="abc-render"></div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('close-abc').addEventListener('click', () => {
+            document.getElementById('abc-visualizer').classList.add('hidden');
+        });
+    </script>
+</body>
+<script type="module" src="/static/js/chat.js"></script>
+</html>

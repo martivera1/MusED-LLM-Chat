@@ -27,6 +27,10 @@ chain = prompt | model
 abc_notation = None
 #global abc_notation
 
+# @app.route('/')
+# def temporal():
+#     return render_template('temporal.html')
+
 @app.route('/')
 def index():
     return render_template('index.html')
