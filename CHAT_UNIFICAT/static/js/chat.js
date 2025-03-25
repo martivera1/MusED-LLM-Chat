@@ -2,12 +2,52 @@ import abcjs from 'https://cdn.jsdelivr.net/npm/abcjs@6.4.4/+esm';
 
 
 document.addEventListener("DOMContentLoaded", () => {
+
   const sendBtn = document.getElementById("send-btn");
   const questionInput = document.getElementById("question");
   const chatbox = document.getElementById("chatbox");
   const abcVisualizer = document.getElementById("abc-visualizer");
   const abcRender = document.getElementById("abc-render");
+  const resizer = document.querySelector(".resizer");
   
+    //REDIMENSIONAR PARTITURA (ARRASTRE)
+    let isResizing = false;
+    let initialX;
+    let initialWidth;
+
+    resizer.addEventListener("mousedown", (e) => {
+        isResizing = true;
+        initialX = e.clientX;
+        initialWidth = abcVisualizer.offsetWidth;
+        document.body.classList.add('resizing');
+        document.addEventListener("mousemove", onMouseMove);
+        document.addEventListener("mouseup", stopResizing);
+        e.preventDefault(); // Prevent text selection
+    });
+    
+    function onMouseMove(e) {
+        if (!isResizing) return;
+        
+        const currentX = e.clientX;
+        const deltaX = currentX - initialX;
+        let newWidth = initialWidth - deltaX;
+        
+        // Apply constraints (300px min, 80% of window max)
+        newWidth = Math.max(600, Math.min(newWidth, window.innerWidth * 0.8));
+        abcVisualizer.style.width = `${newWidth}px`;
+    }
+    
+    function stopResizing() {
+        isResizing = false;
+        document.body.classList.remove('resizing');
+        document.removeEventListener("mousemove", onMouseMove);
+        document.removeEventListener("mouseup", stopResizing);
+    }
+
+    
+
+
+
   const formatText = (text) => {
       return text.replace(/\n/g, "<br>")
                  .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
@@ -140,4 +180,13 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     
   });
+
+
+
+
+  
+  
+
 });
+
+

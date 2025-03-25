@@ -174,3 +174,75 @@ body {
 .chat-item:hover {
   background-color: #f3f4f6;
 }
+
+.render-button {
+  background-color: #3b82f6; /* Azul consistente con #send-btn */
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+  margin-top: 0.5rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.render-button:hover {
+  background-color: #2563eb; /* Azul más oscuro al pasar el mouse */
+}
+
+.render-button:active {
+  transform: scale(0.98); /* Efecto de clic */
+}
+
+/* #abc-visualizer {
+  width: 40%;
+  min-width: 300px;
+  max-width: 80%;
+  background: #f5f5f5;
+  border-left: 2px solid #ccc;
+  position: relative;
+} */
+
+#abc-visualizer {
+  position: relative;  /* Needed for resizer positioning */
+  width: 400px;        /* Initial width */
+  flex-shrink: 0;      /* Prevent flex shrinkage */
+}
+
+.resizer {
+  width: 10px;
+  cursor: ew-resize;
+  background: #888;
+  position: absolute;
+  left: -2.5px;
+  top: 0;
+  bottom: 0;
+}
+/* 
+#abc-visualizer {
+  position: fixed;
+  right: 20px; /* Pegado a la derecha 
+  bottom: 20px;
+  width: 300px;
+  height: 200px;
+  background: white;
+  border: 2px solid black;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 10px;
+   /* Oculto inicialmente 
+}
+
+Agarrador para redimensionar 
+.resizer {
+  position: absolute;
+  left: -5px; /* Se posiciona al borde izquierdo 
+  top: 0;
+  width: 10px;
+  height: 100%;
+  cursor: ew-resize;
+  background: rgba(0, 0, 0, 0.2);
+} */
