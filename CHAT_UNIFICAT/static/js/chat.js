@@ -3,14 +3,14 @@ import abcjs from 'https://cdn.jsdelivr.net/npm/abcjs@6.4.4/+esm';
 
 document.addEventListener("DOMContentLoaded", () => {
 
-  const sendBtn = document.getElementById("send-btn");
-  const questionInput = document.getElementById("question");
-  const chatbox = document.getElementById("chatbox");
-  const abcVisualizer = document.getElementById("abc-visualizer");
-  const abcRender = document.getElementById("abc-render");
-  const resizer = document.querySelector(".resizer");
+    const sendBtn = document.getElementById("send-btn");
+    const questionInput = document.getElementById("question");
+    const chatbox = document.getElementById("chatbox");
+    const abcVisualizer = document.getElementById("abc-visualizer");
+    const abcRender = document.getElementById("abc-render");
+    const resizer = document.querySelector(".resizer");
   
-    //REDIMENSIONAR PARTITURA (ARRASTRE)
+    //REDIMENSIONAR PARTITURA (ARRASTRE)///////////////////////////////
     let isResizing = false;
     let initialX;
     let initialWidth;
@@ -43,22 +43,60 @@ document.addEventListener("DOMContentLoaded", () => {
         document.removeEventListener("mousemove", onMouseMove);
         document.removeEventListener("mouseup", stopResizing);
     }
-
+    /////////////////////////////////////////////////////////////////////////////////
     
 
 
-
-  const formatText = (text) => {
+    //// FORMAT TEXT NEGRETA////////////
+    const formatText = (text) => {
       return text.replace(/\n/g, "<br>")
                  .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
-  };
-  
-  const isAbcNotation = (text) => {
-      return text.includes("X:") && text.includes("K:");
-  };
+    };
 
+  ///////////DETECCIÓ DE NOTACIÓ ABC///////////////////////
+    function isAbcNotation(text) {
+        //return text.includes("X:") && text.includes("K:");
+        let foundValidX = false;
+        let foundValidK = false;
+        let musicDetected = false;
+        let passedK = false;
+    
+        const lines = text.split('\n');
+        
+        for (const line of lines) {
+            const trimmed = line.trim();
+            
+            // Ignorar líneas vacías/comentarios
+            if (!trimmed || trimmed.startsWith('%')) continue;
+    
+            // 1. Verificar cabeceras X: y K: con formato válido
+            if (/^X:\s*\d+(\s|$)/i.test(trimmed)) { // X: seguido de número
+                foundValidX = true;
+            }
+            
+            if (/^K:\s*[A-Ga-g](#|b)?m?(\s|$)/i.test(trimmed)) { // K: con tonalidad
+                foundValidK = true;
+                passedK = true; // Marca para buscar música después
+                continue;
+            }
+    
+            // 2. Buscar música SOLO después de K:
+            if (passedK) {
+                // Patrón para notas/barras/símbolos musicales
+                if (/[A-Ga-gzZ|\[\](){}:_^=]/.test(trimmed)) {
+                    musicDetected = true;
+                }
+            }
+        }
+    
+        return foundValidX && foundValidK && musicDetected;      
+    };
+
+/////HISTORIAL RENDERITZACIÓ////////////
   const rendersHistory = {}; // Almacena { id: { abcText, element } }
 
+
+//////RENDERITZACIÓ ABC////
   const renderAbcNotation = async (abcText, renderId = Date.now()) => {
       var currentRenderId;
       try {
@@ -96,7 +134,8 @@ document.addEventListener("DOMContentLoaded", () => {
           abcRender.innerHTML = `<p>Error: ${error.message}</p>`;
       }
   };
-  
+
+/////BOTÓ RENDERITZACIÓ/////
   const addRenderButton = (messageDiv, abcText) => {
     const buttonContainer = document.createElement("div");
     buttonContainer.className = "button-container";
@@ -119,7 +158,8 @@ document.addEventListener("DOMContentLoaded", () => {
     buttonContainer.appendChild(renderButton);
     messageDiv.appendChild(buttonContainer);
   };
-  
+
+////INTERACCIÓ XAT/////
   sendBtn.addEventListener("click", async () => {
       const question = questionInput.value.trim();
       if (!question) return;

@@ -51,7 +51,6 @@ def ask():
                 #return
             
             # Generar la respuesta progresivamente
-            #yield "Chat: \n"  # Mensaje inicial
             response_stream = chain.invoke({"question": user_question})  # Simulación de streaming
             for chunk in response_stream.split(" "):  # Procesar palabra por palabra
                 yield f"{chunk} "
