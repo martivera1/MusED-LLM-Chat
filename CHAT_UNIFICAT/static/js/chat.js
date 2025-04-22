@@ -9,7 +9,23 @@ document.addEventListener("DOMContentLoaded", () => {
     const abcVisualizer = document.getElementById("abc-visualizer");
     const abcRender = document.getElementById("abc-render");
     const resizer = document.querySelector(".resizer");
-  
+
+    // BOTÓN CERRAR VISUALIZADOR
+    const closeBtn = document.getElementById('close-abc');
+    if (closeBtn) {
+        closeBtn.addEventListener('click', () => {
+            abcVisualizer.classList.add('hidden');
+        });
+    }
+    
+
+    const openBtn = document.getElementById('open-abc');
+    if (openBtn) {
+        openBtn.addEventListener('click', () => {
+            abcVisualizer.classList.remove('hidden');
+        });
+    }
+
     //REDIMENSIONAR PARTITURA (ARRASTRE)///////////////////////////////
     let isResizing = false;
     let initialX;
@@ -74,7 +90,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 foundValidX = true;
             }
             
-            if (/^K:\s*[A-Ga-g](#|b)?m?(\s|$)/i.test(trimmed)) { // K: con tonalidad
+            if (/^K:\s*[A-Ga-g](#|b)?\s*(maj|min|m|dorian|mixolydian)?(\s|$)/i.test(trimmed)) { // K: con tonalidad
                 foundValidK = true;
                 passedK = true; // Marca para buscar música después
                 continue;

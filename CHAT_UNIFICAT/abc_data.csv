@@ -1,0 +1,109 @@
+Input,Output
+"A melody in C major, written in treble clef. The rhythm is in common time, and the notes span several octaves, moving from the low register to the high register. Lower octave notes are marked with commas, while higher octave notes use apostrophes. The melody is divided into phrases using bar lines.
+","X:1  
+T:Pitches and Octaves  
+M:C  
+L:1/4  
+K:C treble  
+C, D, E, F, | G, A, B, C | D E F G | A B c d | e f g a | b c' d' e' | f' g' a' b' |] "
+"A series of notes in C major demonstrating various rhythmic durations, from quick divisions to sustained tones. Some are played as grace notes, while others stretch over several beats.","X:1  
+T:Note Lengths  
+M:  
+K:C  
+A/4 A/2 A/ A A2 A3 A4 A6 A7 A8 A12 A16 |] 
+"
+"A passage featuring beamed notes to create rhythmic fluidity. Pairs and groups of notes are linked together to form smooth, connected phrases, with some beams extending over mixed octaves.","X:1  
+T:Beams and Groupings  
+M:C  
+K:C  
+A B c d AB cd | ABcd ABc2 |]
+"
+"A musical section in common time with clear bar line divisions. Double bar lines indicate section boundaries, while repeat symbols mark phrases to be repeated. First and second endings show variations in repeated passages.","X:1  
+T:Bar Lines and Repeats  
+M:C  
+K:C  
+[| A4 A4 | A4 A4 || A4 A4 | A4 A4 |]  
+|: A4 A4 | A4 A4 :: A4 A4 | A4 A4 ::  
+A4 A4 | A4 A4 |1 A4 A4 :|2 A4 A4 | A4 A4 |] 
+"
+"A demonstration of how changing the unit note length affects the notation. The melody remains the same, but the notation is adjusted to show the difference between sixteenth notes, eighth notes, and quarter notes.","X:1  
+T:Unit note length  
+T:Same notes / different notation  
+M:  
+K:C  
+L:1/16  
+A/2 A A2 A4 A8 A16 |]  
+L:1/8  
+A/4 A/2 A A2 A4 A8 |]  
+L:1/4  
+A/8 A/4 A/2 A A2 A4 |] 
+"
+"A rhythmic pattern that uses broken rhythm markers to create a syncopated or ""dotted"" feel. The angle brackets indicate whether the second note is played longer or shorter than the first, adding a subtle swing or lilt to the passage.","X:1  
+T:Broken rhythm markers  
+M:3/4  
+K:C  
+A>A A2>A2 | A<A A2<A2 | A>>A A2>>>A2 | A<<A A2<<<A2 |]
+"
+"A passage showcasing tuplets of different lengths, from duplets to septuplets. The parentheses indicate how many notes fit into a single beat or rhythmic value, giving a sense of compression or elongation in the phrasing.","X:1  
+T:Tuplets  
+M:C  
+K:C  
+(2AB (3ABA (4ABAB (5ABABA (6ABABAB (7ABABABA |] 
+"
+"A line demonstrating the difference between ties and slurs. Slurs are indicated by parentheses, grouping notes together smoothly, while ties are marked with a dash, connecting notes.","X:1  
+T:Ties and slurs  
+M:C  
+K:C  
+(AA) (A(A)A) ((AA)A) (A|A) A-A A-A-A A2-|A4|] 
+"
+"A set of notes (in this case A) showing different types of accidentals: double flat, flat, natural, sharp, and double sharp. These symbols alter the pitch of the note and are written before the note itself.","X:1  
+T:Accidentals  
+M:C  
+K:C  
+__A _A =A ^A ^^A |] 
+"
+"Chords are written with notes stacked together inside square brackets. This example shows triads, dyads, and more complex chords, played simultaneously. The timing of the chord is also shown by including rhythmic values within the brackets.","X:1  
+T:Chords  
+M:2/4  
+K:C  
+[CEGc] [C2G2] [CE][DF] | [D2F2][EG][FA] [A4d4]|] 
+"
+"A demonstration of how to notate different keys and modes in ABC notation. This includes major keys in various forms (e.g., ""C major"", ""CMAJOR""), as well as modal scales such as Lydian, Ionian, Mixolydian, Dorian, Aeolian, Phrygian, and Locrian. Each key signature produces the same pitch sequence to highlight how notation changes while pitches stay consistent.","X:1  
+T:Keys and modes  
+M:4/4  
+K:C  
+T:C/CMAJOR/Cmajor  
+CDEF GABc |\  
+K:CMAJOR  
+CDEF GABc |\  
+K:Cmajor  
+CDEF GABc |]  
+T:C maj/ C major/C Major  
+K:C maj  
+CDEF GABc |\  
+K:C major  
+CDEF GABc |\  
+K:C Major  
+CDEF GABc |]  
+T:C Lydian/C Ionian/C Mixolydian  
+K:C Lydian  
+CDEF GABc |\  
+K:C Ionian  
+CDEF GABc |\  
+K:C Mixolydian  
+CDEF GABc |]  
+T:C Dorian/C Minor/Cm  
+K:C Dorian  
+CDEF GABc |\  
+K:C Minor  
+CDEF GABc |\  
+K:Cm  
+CDEF GABc |]  
+T:C Aeolian/C Phrygian/C Locrian  
+K:C Aeolian  
+CDEF GABc |\  
+K:C Phrygian  
+CDEF GABc |\  
+K:C Locrian  
+CDEF GABc |]
+"

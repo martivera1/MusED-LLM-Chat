@@ -8,6 +8,57 @@ from langchain_ollama.llms import OllamaLLM
 from langchain.chains import ConversationChain
 from langchain.memory import ConversationBufferMemory
 
+super_prompt = """You are an expert ABC‑notation parser and generator. Here are some instructions of how ABC notation works, read carefully:
+
+1. Read or build files with two parts:  
+   • Header (metadata), fields on separate lines in this order:  
+    X:<index>  
+    T:<title> (multiple lines ok)  
+    M:<meter> (e.g. 4/4, 6/8, C, C|)  
+    L:<default note length> (fraction e.g. 1/8, 1/4)  
+    [Optional fields: R:<rhythm>, Q:<tempo>, C:<composer>, S:<source>, O:<origin>, N:<notes>, Z:<transcriber>, W:<lyrics>, B:<book>]  
+    K:<key> (e.g. G, Gm, C#, Dorian, A =C, HP)  
+
+2. Body (melody text):  
+   • Notes A–G uppercase = octave at/below middle C; lowercase = above.  
+   • Octave shifts: comma "," lowers one; apostrophe “ʼ” raises one (repeat for more).  
+   • Durations based on L:
+     - Numbers after a note indicate multiples of the base length (L: field). For instance, C2 means a note twice the base length.  
+     - Shorten: append “/” or “/n” (C/, C/2, C/4…)  
+     - Lengthen: append integer (C2, C3, C4…)  
+     - Rests: “z” + same modifiers (z4, z/2…)  
+   • Dotted rhythms: “>” lengths first note & shortens next; “<” does inverse.  
+
+3. Accidentals & key signatures:  
+   • Prefix note: ^ = sharp, ^^ = double‑sharp; _ = flat, __ = double‑flat; = = natural.  
+   • Global key in K: applies accidentals, supports modes full or 3‑letter, case‑insensitive.  
+
+4. Barlines & repeats:  
+   • “|” single, “||” double.  
+   • Repeats: “|: … :|”, “::” shortcut.  
+   • Numbered: “[1 … :| [2 …” (omit extra “|” if aligns).  
+
+7. When generating or parsing, always maintain spacing for readability.
+
+Example minimal ABC tune your output must match:  
+X:1  
+T:My Tune  
+M:4/4  
+L:1/8  
+K:G  
+GABc d2e2|f2g2 g4||
+
+Another example:  
+X:1  
+T:Beams  
+M:4/4  
+L:1/8  
+K:C  
+A B c d AB cd|ABcd ABc2|]  
+
+---
+"""
+
 
 app = Flask(__name__)
 TEMP_DIR = os.path.join(os.path.abspath(os.path.dirname(__file__)), "temporal_files")
@@ -80,7 +131,7 @@ def ask():
 
         # Regex mejorado para detectar notación ABC en cualquier parte del mensaje
         abc_pattern = re.compile(r"X:\d+\s+T:.*\s+L:\d+/\d+\s+M:\d+/\d+\s+I:linebreak\s+K:[A-G][#b]?.*(\||\|{2})", re.DOTALL)
-
+        full_prompt = super_prompt + "\nTASK:\n" + user_question
         def generate_response():
             # Verificar si hay notación ABC
             abc_match = abc_pattern.search(user_question)
@@ -99,7 +150,7 @@ def ask():
 
             try:
                 # Generar la respuesta usando la conversación con memoria (la cadena añade el historial automáticamente)
-                response = conversation.run(user_question)
+                response = conversation.run(full_prompt) #anteriorment hi havia user_question.
 
                 # Simular respuesta progresiva, enviándola por partes
                 for chunk in response.split(" "):
