@@ -198,14 +198,6 @@ body {
   transform: scale(0.98); /* Efecto de clic */
 }
 
-/* #abc-visualizer {
-  width: 40%;
-  min-width: 300px;
-  max-width: 80%;
-  background: #f5f5f5;
-  border-left: 2px solid #ccc;
-  position: relative;
-} */
 
 #abc-visualizer {
   position: relative;  /* Needed for resizer positioning */
@@ -227,27 +219,23 @@ body {
   display: none !important;
 }
 
-/* 
-#abc-visualizer {
-  position: fixed;
-  right: 20px; /* Pegado a la derecha 
-  bottom: 20px;
-  width: 300px;
-  height: 200px;
-  background: white;
-  border: 2px solid black;
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-  padding: 10px;
-   /* Oculto inicialmente 
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
-Agarrador para redimensionar 
-.resizer {
-  position: absolute;
-  left: -5px; /* Se posiciona al borde izquierdo 
-  top: 0;
-  width: 10px;
-  height: 100%;
-  cursor: ew-resize;
-  background: rgba(0, 0, 0, 0.2);
-} */
+.spinner-container {
+  display: flex;
+  justify-content: center;
+  padding: 10px;
+  min-height: 50px;
+}
+
+.spinner {
+  width: 24px;
+  height: 24px;
+  border: 3px solid #dbeafe; /* Color del fondo del mensaje bot */
+  border-top: 3px solid #3b82f6; /* Azul del tema */
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}

@@ -8,7 +8,7 @@ from langchain_ollama.llms import OllamaLLM
 from langchain.chains import ConversationChain
 from langchain.memory import ConversationBufferMemory
 
-super_prompt = """You are an expert ABC‑notation parser and generator. Here are some instructions of how ABC notation works, read carefully:
+pre_super_prompt = """You are an expert ABC‑notation parser and generator. Here are some instructions of how ABC notation works, read carefully:
 
 1. Read or build files with two parts:  
    • Header (metadata), fields on separate lines in this order:  
@@ -38,25 +38,86 @@ super_prompt = """You are an expert ABC‑notation parser and generator. Here ar
    • Repeats: “|: … :|”, “::” shortcut.  
    • Numbered: “[1 … :| [2 …” (omit extra “|” if aligns).  
 
-7. When generating or parsing, always maintain spacing for readability.
+   
 
-Example minimal ABC tune your output must match:  
+5. Please note that I want the key (K:) to be directly followed by the compasses without any spaces in between."
+   • Incorrect Format:   
+        X:1
+        T:Song
+        R:reel
+        M:4/4
+        L:1/8
+        K:D
+
+        |(G2 _D2) G2 _A2| 
+
+   • Correct Format:
+        X:1
+        T:Song
+        R:reel
+        M:4/4
+        L:1/8
+        K:D
+        |(G2 _D2) G2 _A2| 
+
+
+Example of ABC compact notations:
 X:1  
 T:My Tune  
 M:4/4  
 L:1/8  
 K:G  
-GABc d2e2|f2g2 g4||
+GABc d2e2| %compass1 = (G)1+(A)1+(B)1+(c)1 + (d2)2+(e2)2 = 8 units.
+f2g2 g4|| %compass2 = (f2)2 + g2(2) + g4 (4) = 8 units.
 
-Another example:  
-X:1  
-T:Beams  
-M:4/4  
-L:1/8  
-K:C  
-A B c d AB cd|ABcd ABc2|]  
+Another example:
+X:1
+T:Beams
+M:4/4
+L:1/8
+K:C
+A B c d AB cd|	% compass 1 = (A)1 + (B)1 + (c)1 + (d)1 + (A)1 + (B)1 + (c)1 + (d)1 = 8 units
+ABcd ABc2|    	% compass 2 = (A)1 + (B)1 + (c)1 + (d)1   +   (A)1 + (B)1 + (c2)2 = 4 + 4 = 8 units
+]
+
+Another example:
+X:1
+L:1/8
+M:4/4
+K:Gmin
+|: ABcd GGGd	|% compás 1 = A1+B1+c1+d1 + G1+G1+G1+d1 = 1+1+1+1+1+1+1+1= 8 unidades
+  e2 dB cBAB	|% compás 2 = e2(2) + d1+B1 + c1+B1+A1+B1 = 2 + 1 +1 +1 +1+1+1= 8 unidades
+  ABcd GGGd	    |% compass 3 = A(1) + B(1) + c(1) + d(1) + G(1) + G(1) + G(1) + d(1)= 8 units
+  ecdF B2 BA   |% compass 4 = e1+c1+d1+F1 + B2(2) + B1+A1 = 4 + 2 + 2 = 8 units
+:| ecdF B2 z2  |% compass 5 = e(1)+c(1)+d(1)+e(1)+F(1) + B2(2) + z(2) = 4 + 2 + 2 = 8 units
+
+|: g2 fe dGGG  |% compass 6 = g2(2) + f1+e1 + d1+G1+G1+G1 = 2 + 2 + 4 = 8 units
+  Bc A2 AGAB  |% compass 7 = B1+c1 + A2(2) + A1+G1+A1+B1 = 2 + 2 + 4 = 8 units
+  g2 fe dGGG  |% compass 8 = g2(2) + f(1)+e(1)+ d(1) + G(1) +G(1) +G(1)  = 8 units
+  BcAB FGGF   |% compass 9 = B1+c1+A1+B1 + F1+G1+G1+F1 = 4 + 4 = 8 units
+:| BcAB G2 z2 ||% compass 10= BcAB(4) + G2(2) + z2(2) = 4 + 2 + 2 = 8 units
+
 
 ---
+"""
+
+post_super_prompt = """ 
+
+TASK_TEMPLATE:
+Use this template to make the next task:
+- Header with exactly these lines (replace angle‑bracketed text):
+X: 1
+T: My song
+R: reel
+M: 4/4
+L: 1/8
+K:
+|here the notes| %has to sum 8 units.
+|here the notes | %has to sum 8 units.
+|here the notes|| %has to sum 8 units.
+- Use explicit durations (numeric values).
+- Ensure each compass sums to exactly 8 units.
+- Output only 1 ABC notation.
 """
 
 
@@ -131,7 +192,7 @@ def ask():
 
         # Regex mejorado para detectar notación ABC en cualquier parte del mensaje
         abc_pattern = re.compile(r"X:\d+\s+T:.*\s+L:\d+/\d+\s+M:\d+/\d+\s+I:linebreak\s+K:[A-G][#b]?.*(\||\|{2})", re.DOTALL)
-        full_prompt = super_prompt + "\nTASK:\n" + user_question
+        full_prompt = pre_super_prompt +  "\nTASK:\n" + user_question+post_super_prompt
         def generate_response():
             # Verificar si hay notación ABC
             abc_match = abc_pattern.search(user_question)
