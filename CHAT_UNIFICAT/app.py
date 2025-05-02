@@ -7,96 +7,74 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_ollama.llms import OllamaLLM
 from langchain.chains import ConversationChain
 from langchain.memory import ConversationBufferMemory
+from langchain.prompts import ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate
 
-pre_super_prompt = """You are an expert ABC‑notation parser and generator. Here are some instructions of how ABC notation works, read carefully:
+pre_super_prompt = """
+<<SYSTEM MESSAGE START>>  
+You are an expert ABC-notation generator.  
+**STRICTLY** output **only** the ABC notation block (no comments, no reasoning, no extra tokens).  
+<<SYSTEM MESSAGE END>>
+
+You are an expert ABC‑notation parser and generator. Here are some instructions of how ABC notation works, read carefully:
 
 1. Read or build files with two parts:  
-   • Header (metadata), fields on separate lines in this order:  
+   • Header (metadata), fields on separate lines in this order **in this exact order**:  
     X:<index>  
     T:<title> (multiple lines ok)  
     M:<meter> (e.g. 4/4, 6/8, C, C|)  
     L:<default note length> (fraction e.g. 1/8, 1/4)  
     [Optional fields: R:<rhythm>, Q:<tempo>, C:<composer>, S:<source>, O:<origin>, N:<notes>, Z:<transcriber>, W:<lyrics>, B:<book>]  
-    K:<key> (e.g. G, Gm, C#, Dorian, A =C, HP)  
+    K:<key> (e.g. G, Gm, C, Dorian, A =C, HP)  
 
-2. Body (melody text):  
+2. Body (melody text) **— ensure each bar’s total equals exactly the meter’s unit count**:  
    • Notes A–G uppercase = octave at/below middle C; lowercase = above.  
    • Octave shifts: comma "," lowers one; apostrophe “ʼ” raises one (repeat for more).  
    • Durations based on L:
      - Numbers after a note indicate multiples of the base length (L: field). For instance, C2 means a note twice the base length.  
-     - Shorten: append “/” or “/n” (C/, C/2, C/4…)  
-     - Lengthen: append integer (C2, C3, C4…)  
+     - Shorten: append “/” or “/n” (C/, C/2, C/4…)  **Explicit divisors**: “/” or “/n” (C/, C/2, C/4…). 
+     - Lengthen: append integer (C2, C3, C4…)  **Explicit multipliers**: integer after note (C2 = 2× base length).
      - Rests: “z” + same modifiers (z4, z/2…)  
-   • Dotted rhythms: “>” lengths first note & shortens next; “<” does inverse.  
+   • Dotted rhythms: “>” lengthens first note 1.5× and shortens the next; “<” does inverse. (Example: "A>F" "B<D") 
 
-3. Accidentals & key signatures:  
+3. Accidentals & key signatures:
+   • The accidental ALWAYS goes BEFORE the note we want to alterate "_C" or "^F" 
    • Prefix note: ^ = sharp, ^^ = double‑sharp; _ = flat, __ = double‑flat; = = natural.  
-   • Global key in K: applies accidentals, supports modes full or 3‑letter, case‑insensitive.  
+   • Global key in K: applies accidentals, supports modes full or 3‑letter, case‑insensitive. 
+   • NEVER use "#" or "b" for accidentals, the only correct characters for this alterations are ^ = sharp, ^^ = double‑sharp; _ = flat, __ = double‑flat; = = natural.
 
 4. Barlines & repeats:  
    • “|” single, “||” double.  
    • Repeats: “|: … :|”, “::” shortcut.  
-   • Numbered: “[1 … :| [2 …” (omit extra “|” if aligns).  
+   • Numbered: “[1 … :| [2 …” (omit extra “|” if aligns).
+   • A compass is delimited by two bars "| |". 
 
-   
+   5. Common time (4/4): four quarter-note beats per measure, with a primary accent on beat 1 and a secondary on beat 3. In ABC notation, declare  
+    ```
+    M:4/4    % sets meter to common time
+    ```
+    If you use  
+    ```
+    L:1/8    % default note length = eighth note
+    ```
+    then a quarter-note is written as `2` (two eighths), and each bar must total `8` units.  
+    Example:
+    ```
+    X:1
+    M:4/4
+    L:1/8
+    K:C
+    C2 D2 E2 F2 | G2 A2 B2 c2 ||
+    ```
 
-5. Please note that I want the key (K:) to be directly followed by the compasses without any spaces in between."
-   • Incorrect Format:   
-        X:1
-        T:Song
-        R:reel
-        M:4/4
-        L:1/8
-        K:D
-
-        |(G2 _D2) G2 _A2| 
-
-   • Correct Format:
-        X:1
-        T:Song
-        R:reel
-        M:4/4
-        L:1/8
-        K:D
-        |(G2 _D2) G2 _A2| 
-
-
-Example of ABC compact notations:
-X:1  
-T:My Tune  
-M:4/4  
-L:1/8  
-K:G  
-GABc d2e2| %compass1 = (G)1+(A)1+(B)1+(c)1 + (d2)2+(e2)2 = 8 units.
-f2g2 g4|| %compass2 = (f2)2 + g2(2) + g4 (4) = 8 units.
-
-Another example:
-X:1
-T:Beams
-M:4/4
-L:1/8
-K:C
-A B c d AB cd|	% compass 1 = (A)1 + (B)1 + (c)1 + (d)1 + (A)1 + (B)1 + (c)1 + (d)1 = 8 units
-ABcd ABc2|    	% compass 2 = (A)1 + (B)1 + (c)1 + (d)1   +   (A)1 + (B)1 + (c2)2 = 4 + 4 = 8 units
-]
-
-Another example:
-X:1
-L:1/8
-M:4/4
-K:Gmin
-|: ABcd GGGd	|% compás 1 = A1+B1+c1+d1 + G1+G1+G1+d1 = 1+1+1+1+1+1+1+1= 8 unidades
-  e2 dB cBAB	|% compás 2 = e2(2) + d1+B1 + c1+B1+A1+B1 = 2 + 1 +1 +1 +1+1+1= 8 unidades
-  ABcd GGGd	    |% compass 3 = A(1) + B(1) + c(1) + d(1) + G(1) + G(1) + G(1) + d(1)= 8 units
-  ecdF B2 BA   |% compass 4 = e1+c1+d1+F1 + B2(2) + B1+A1 = 4 + 2 + 2 = 8 units
-:| ecdF B2 z2  |% compass 5 = e(1)+c(1)+d(1)+e(1)+F(1) + B2(2) + z(2) = 4 + 2 + 2 = 8 units
-
-|: g2 fe dGGG  |% compass 6 = g2(2) + f1+e1 + d1+G1+G1+G1 = 2 + 2 + 4 = 8 units
-  Bc A2 AGAB  |% compass 7 = B1+c1 + A2(2) + A1+G1+A1+B1 = 2 + 2 + 4 = 8 units
-  g2 fe dGGG  |% compass 8 = g2(2) + f(1)+e(1)+ d(1) + G(1) +G(1) +G(1)  = 8 units
-  BcAB FGGF   |% compass 9 = B1+c1+A1+B1 + F1+G1+G1+F1 = 4 + 4 = 8 units
-:| BcAB G2 z2 ||% compass 10= BcAB(4) + G2(2) + z2(2) = 4 + 2 + 2 = 8 units
-
+    Example:
+    ```
+    X:1
+    T:Progression
+    M:4/4
+    L:1/8
+    K:C
+    C2 E2 G2 E2 | F2 A2 c2 A2 | G2 B2 d2 B2 | E2 G2 C2 z2 ||
+    ```
 
 ---
 """
@@ -104,20 +82,27 @@ K:Gmin
 post_super_prompt = """ 
 
 TASK_TEMPLATE:
-Use this template to make the next task:
-- Header with exactly these lines (replace angle‑bracketed text):
+Use this template **EXACTLY** to make the task:
+
 X: 1
-T: My song
+T: 
 R: reel
 M: 4/4
 L: 1/8
 K:
-|here the notes| %has to sum 8 units.
-|here the notes | %has to sum 8 units.
-|here the notes|| %has to sum 8 units.
+|here the notes| %compass1: (here sum note units)
+|here the notes | %compass2: (here sum note units)
+|here the notes|| %compass3: (here sum note units)
+
+**VALIDATION(internal):**  
+After the ABC block, add a line:  
+Validation: bar1=8, bar2=8, bar3=8
+
+**IMPORTANT FINAL INSTRUCTIONS**
 - Use explicit durations (numeric values).
-- Ensure each compass sums to exactly 8 units.
-- Output only 1 ABC notation.
+- Ensure each compass sums to EXACTLY 8 units.
+- **ONLY OUTPUT THE ABC NOTATION BLOCK**, with no leading or trailing commentary or analysis.
+- If you reason, do not print it. **Your single final response must be the ABC text only.**
 """
 
 
@@ -127,7 +112,12 @@ os.makedirs(TEMP_DIR, exist_ok=True)
 
 
 # Configurar el model
-prompt = ChatPromptTemplate.from_template("""Question: {question}\n\nAnswer: Let's think step by step.""")
+prompt = ChatPromptTemplate.from_template("""Question: {question}
+
+Answer:
+(Please work through the problem step by step in your internal reasoning, but do not print those private thoughts. When you’ve finished thinking, output only the final reasoning under the heading "Final Reasoning:”.)""")
+
+#prompt = ChatPromptTemplate.from_template("""Question: {question}""") #per veure si canvia i no raona tant i va més al punt.
 model = OllamaLLM(model="llama3.1")
 memory = ConversationBufferMemory(memory_key="history", return_messages=True)
 conversation = ConversationChain(llm=model, memory=memory)
