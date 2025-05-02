@@ -9,101 +9,21 @@ from langchain.chains import ConversationChain
 from langchain.memory import ConversationBufferMemory
 from langchain.prompts import ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate
 
-pre_super_prompt = """
-<<SYSTEM MESSAGE START>>  
-You are an expert ABC-notation generator.  
-**STRICTLY** output **only** the ABC notation block (no comments, no reasoning, no extra tokens).  
-<<SYSTEM MESSAGE END>>
+def load_txt_as_str(file_path):
+    try:
+        with open(file_path, 'r', encoding='utf-8') as file:
+            content = file.read()
+        return content
+    except FileNotFoundError:
+        print(f"The file '{file_path}' was not found.")
+        return None
+    except Exception as e:
+        print(f"An error occurred while reading the file: {e}")
+        return None
 
-You are an expert ABC‑notation parser and generator. Here are some instructions of how ABC notation works, read carefully:
 
-1. Read or build files with two parts:  
-   • Header (metadata), fields on separate lines in this order **in this exact order**:  
-    X:<index>  
-    T:<title> (multiple lines ok)  
-    M:<meter> (e.g. 4/4, 6/8, C, C|)  
-    L:<default note length> (fraction e.g. 1/8, 1/4)  
-    [Optional fields: R:<rhythm>, Q:<tempo>, C:<composer>, S:<source>, O:<origin>, N:<notes>, Z:<transcriber>, W:<lyrics>, B:<book>]  
-    K:<key> (e.g. G, Gm, C, Dorian, A =C, HP)  
 
-2. Body (melody text) **— ensure each bar’s total equals exactly the meter’s unit count**:  
-   • Notes A–G uppercase = octave at/below middle C; lowercase = above.  
-   • Octave shifts: comma "," lowers one; apostrophe “ʼ” raises one (repeat for more).  
-   • Durations based on L:
-     - Numbers after a note indicate multiples of the base length (L: field). For instance, C2 means a note twice the base length.  
-     - Shorten: append “/” or “/n” (C/, C/2, C/4…)  **Explicit divisors**: “/” or “/n” (C/, C/2, C/4…). 
-     - Lengthen: append integer (C2, C3, C4…)  **Explicit multipliers**: integer after note (C2 = 2× base length).
-     - Rests: “z” + same modifiers (z4, z/2…)  
-   • Dotted rhythms: “>” lengthens first note 1.5× and shortens the next; “<” does inverse. (Example: "A>F" "B<D") 
 
-3. Accidentals & key signatures:
-   • The accidental ALWAYS goes BEFORE the note we want to alterate "_C" or "^F" 
-   • Prefix note: ^ = sharp, ^^ = double‑sharp; _ = flat, __ = double‑flat; = = natural.  
-   • Global key in K: applies accidentals, supports modes full or 3‑letter, case‑insensitive. 
-   • NEVER use "#" or "b" for accidentals, the only correct characters for this alterations are ^ = sharp, ^^ = double‑sharp; _ = flat, __ = double‑flat; = = natural.
-
-4. Barlines & repeats:  
-   • “|” single, “||” double.  
-   • Repeats: “|: … :|”, “::” shortcut.  
-   • Numbered: “[1 … :| [2 …” (omit extra “|” if aligns).
-   • A compass is delimited by two bars "| |". 
-
-   5. Common time (4/4): four quarter-note beats per measure, with a primary accent on beat 1 and a secondary on beat 3. In ABC notation, declare  
-    ```
-    M:4/4    % sets meter to common time
-    ```
-    If you use  
-    ```
-    L:1/8    % default note length = eighth note
-    ```
-    then a quarter-note is written as `2` (two eighths), and each bar must total `8` units.  
-    Example:
-    ```
-    X:1
-    M:4/4
-    L:1/8
-    K:C
-    C2 D2 E2 F2 | G2 A2 B2 c2 ||
-    ```
-
-    Example:
-    ```
-    X:1
-    T:Progression
-    M:4/4
-    L:1/8
-    K:C
-    C2 E2 G2 E2 | F2 A2 c2 A2 | G2 B2 d2 B2 | E2 G2 C2 z2 ||
-    ```
-
----
-"""
-
-post_super_prompt = """ 
-
-TASK_TEMPLATE:
-Use this template **EXACTLY** to make the task:
-
-X: 1
-T: 
-R: reel
-M: 4/4
-L: 1/8
-K:
-|here the notes| %compass1: (here sum note units)
-|here the notes | %compass2: (here sum note units)
-|here the notes|| %compass3: (here sum note units)
-
-**VALIDATION(internal):**  
-After the ABC block, add a line:  
-Validation: bar1=8, bar2=8, bar3=8
-
-**IMPORTANT FINAL INSTRUCTIONS**
-- Use explicit durations (numeric values).
-- Ensure each compass sums to EXACTLY 8 units.
-- **ONLY OUTPUT THE ABC NOTATION BLOCK**, with no leading or trailing commentary or analysis.
-- If you reason, do not print it. **Your single final response must be the ABC text only.**
-"""
 
 
 app = Flask(__name__)
@@ -118,7 +38,7 @@ Answer:
 (Please work through the problem step by step in your internal reasoning, but do not print those private thoughts. When you’ve finished thinking, output only the final reasoning under the heading "Final Reasoning:”.)""")
 
 #prompt = ChatPromptTemplate.from_template("""Question: {question}""") #per veure si canvia i no raona tant i va més al punt.
-model = OllamaLLM(model="llama3.1")
+model = OllamaLLM(model="llama3.1:8b")
 memory = ConversationBufferMemory(memory_key="history", return_messages=True)
 conversation = ConversationChain(llm=model, memory=memory)
 chain = prompt | model
@@ -173,6 +93,9 @@ def index():
 
 @app.route('/ask', methods=['POST'])
 def ask():
+    pre_super_prompt = load_txt_as_str("prompts/super_prompt.txt")
+
+    post_super_prompt = load_txt_as_str("prompts/post_super_prompt.txt")
     try:
         data = request.get_json()
         user_question = data.get("question", "")
@@ -228,6 +151,12 @@ def get_abc():
     if abc_files:
         return send_file(os.path.join(TEMP_DIR, abc_files[0]), as_attachment=False, mimetype='text/plain')
     return jsonify({'error': 'No ABC notation available.'}), 404
+
+
+
+
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)
