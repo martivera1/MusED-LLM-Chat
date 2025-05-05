@@ -95,17 +95,42 @@ def index():
 def ask():
     pre_super_prompt = load_txt_as_str("prompts/super_prompt.txt")
 
-    post_super_prompt = load_txt_as_str("prompts/post_super_prompt.txt")
+    #post_super_prompt = load_txt_as_str("prompts/post_super_prompt.txt")
     try:
         data = request.get_json()
         user_question = data.get("question", "")
-        print(f"Received question: {user_question}")
+        use_super = data.get("use_super",True)
+        use_text = data.get("use_text",False)
+        # print(f"Received question: {user_question}")
+        # use_super = data.get("use_super", "true").lower() == "true"
+        # use_text = data.get("use_text", "false").lower() == "true"
+        
+        # 2. Debug detallado
+        print(f"\n--- PARÁMETROS RECIBIDOS ---")
+        print(f"use_super: {use_super} ({type(use_super)})")
+        print(f"use_text: {use_text} ({type(use_text)})")
+
+        # Cargar el prompt seleccionado
+        if use_text:
+            pre_prompt = load_txt_as_str("prompts/text_prompt.txt")
+            print("\033[92m" + "✅ LYRICS PROMPT ACTIVATED" + "\033[0m")
+        elif use_super:
+            pre_prompt = load_txt_as_str("prompts/super_prompt.txt")
+            print("\033[93m" + "🔼 SUPER PROMPT ACTIVATED" + "\033[0m")
+        else:
+            pre_prompt = ""
+            print("\033[91m" + "⚠️ NO PROMPT" + "\033[0m")
+            
+
+        full_prompt = pre_prompt + user_question if pre_prompt else user_question
         if not user_question:
             return jsonify({"response": "Please provide a question."})
+        
+        print(f"Using {'super' if use_super else 'text'} prompt")
 
         # Regex mejorado para detectar notación ABC en cualquier parte del mensaje
         abc_pattern = re.compile(r"X:\d+\s+T:.*\s+L:\d+/\d+\s+M:\d+/\d+\s+I:linebreak\s+K:[A-G][#b]?.*(\||\|{2})", re.DOTALL)
-        full_prompt = pre_super_prompt +  "\nTASK:\n" + user_question+post_super_prompt
+        #full_prompt = pre_super_prompt  + user_question
         def generate_response():
             # Verificar si hay notación ABC
             abc_match = abc_pattern.search(user_question)

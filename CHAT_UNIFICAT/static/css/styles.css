@@ -239,3 +239,18 @@ body {
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
+
+#choose-prompt {
+  margin-right: 10px;
+  padding: 8px 15px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+#choose-prompt:hover {
+  background-color: #45a049;
+}

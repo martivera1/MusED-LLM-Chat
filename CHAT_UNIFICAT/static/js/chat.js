@@ -7,7 +7,25 @@ document.addEventListener("DOMContentLoaded", () => {
     const abcVisualizer = document.getElementById("abc-visualizer");
     const abcRender = document.getElementById("abc-render");
     const resizer = document.querySelector(".resizer");
+    const prompt_button = document.getElementById('choose-prompt');
 
+    //CHANGE PROMPT///
+    let isSuperPromptActive = true;
+
+    // Añade este evento después de los demás event listeners
+    document.getElementById('choose-prompt').addEventListener('click', () => {
+        isSuperPromptActive = !isSuperPromptActive;
+        
+        prompt_button.textContent = `Choose Prompt (${isSuperPromptActive ? 'Super' : 'Lyrics'})`;
+
+        console.log(`%c✅ Prompt seleccionado: ${isSuperPromptActive ? 'SUPER (músico experto)' : 'TEXT (asistente general)'}`, 
+        'color: #2ecc71; font-weight: bold; font-size: 12px;');
+
+        console.log(`Botón actualizado a: "${prompt_button.textContent}"`);
+    });
+
+    
+    
     // BOTÓN CERRAR VISUALIZADOR
     const closeBtn = document.getElementById('close-abc');
     if (closeBtn) {
@@ -186,7 +204,12 @@ document.addEventListener("DOMContentLoaded", () => {
             const response = await fetch("/ask", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ question }),
+                body: JSON.stringify({ 
+                    question: question, 
+                    use_super: isSuperPromptActive,
+                    use_text: !isSuperPromptActive
+                }),
+
             });
 
             if (!response.ok) throw new Error("Error en la respuesta del servidor");

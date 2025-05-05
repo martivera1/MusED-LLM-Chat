@@ -94,4 +94,29 @@ You are an expert ABC‑notation parser and generator. Here are some instruction
     |eddc d2 ed| 
     |eddc defg ||
 
+
+
+
+TASK_TEMPLATE:
+Use this template **EXACTLY** to make the task:
+
+X: 1
+T: 
+R: reel
+M: 4/4
+L: 1/8
+K:
+|here the notes| %compass1: (here sum note units)
+|here the notes | %compass2: (here sum note units)
+|here the notes| %compass3: (here sum note units)
+|here the notes| %compass4: (here sum note units)
+|here the notes|| %compass5: (here sum note units)
+
+
+**IMPORTANT FINAL INSTRUCTIONS**
+- Use explicit durations (numeric values).
+- Ensure each compass sums to EXACTLY 8 units. IF the duration is bigger or less than 8 then ITS WRONG and has to be reapeated.
+- NEVER, IN ANY CASE use "#" or "b" for alterations. Use the ones that are indicated in the instructions (^ = sharp, ^^ = double‑sharp; _ = flat, __ = double‑flat; = = natural).
+- **ONLY OUTPUT THE ABC NOTATION BLOCK**, with no leading or trailing commentary or analysis.
+- If you reason, do not print it. **Your single final response must be the ABC text only.**
 ---
