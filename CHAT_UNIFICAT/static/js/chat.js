@@ -8,6 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const abcRender = document.getElementById("abc-render");
     const resizer = document.querySelector(".resizer");
     const prompt_button = document.getElementById('choose-prompt');
+    const restartBtn = document.getElementById('restart-chat');
 
     //CHANGE PROMPT///
     let isSuperPromptActive = true;
@@ -255,4 +256,32 @@ document.addEventListener("DOMContentLoaded", () => {
             console.error("Error:", error);
         }
     });
+
+    // Añade este event listener después de los demás
+    restartBtn.addEventListener('click', async () => {
+        // Limpiar la interfaz
+        chatbox.innerHTML = '';
+        abcRender.innerHTML = '';
+        
+        try {
+            // Reiniciar la conversación en el backend
+            const response = await fetch("/reset_chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+            });
+            
+            if (!response.ok) throw new Error("Error al reiniciar el chat");
+            
+            console.log("%c♻️ Chat restarted correctly", 
+                "color: #00cc00; font-weight: bold; font-size: 12px;");
+        } catch (error) {
+            console.error("%c❌ Error restarting the chat: " + error.message, 
+                "color: #ff0000; font-weight: bold;");
+        }
+    });
+
+
+
+
+
 });

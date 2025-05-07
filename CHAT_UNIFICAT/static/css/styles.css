@@ -58,7 +58,26 @@ body {
   background-color: white;
 }
 
+
+
+/* Ajustes específicos para el header */
 .header {
+  padding: 15px;
+  background: #f8f9fa;
+  border-bottom: 1px solid #dee2e6;
+}
+
+/* Contenedor del título + botón reinicio */
+.header > div:first-child {
+  gap: 15px;  /* Espacio entre título y botón */
+}
+
+/* Grupo de botones derecha */
+.header > div:last-child {
+  gap: 8px;  /* Espacio entre botones derechos */
+}
+
+/* .header {
   padding: 1rem;
   background-color: white;
   border-bottom: 1px solid #e5e7eb;
@@ -73,7 +92,7 @@ body {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-}
+} */
 
 #toggle-sidebar {
   background: none;
@@ -253,4 +272,24 @@ body {
 
 #choose-prompt:hover {
   background-color: #45a049;
+}
+
+/* Restart Button */
+.restart-btn {
+  padding: 8px 15px;
+  background-color: #ff6b6b;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  font-size: 14px;
+}
+
+.restart-btn:hover {
+  background-color: #ff5252;
+}
+
+.restart-btn:active {
+  background-color: #ff3d3d;
 }

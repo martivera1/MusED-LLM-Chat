@@ -178,7 +178,23 @@ def get_abc():
     return jsonify({'error': 'No ABC notation available.'}), 404
 
 
-
+@app.route('/reset_chat', methods=['POST'])
+def reset_chat():
+    try:
+        # Reiniciar la memoria de la conversación
+        global conversation
+        conversation = ConversationChain(
+            llm=model,
+            memory=ConversationBufferMemory(memory_key="history", return_messages=True)
+        )
+        
+        
+        print("\033[92m" + "✅ Conversación reiniciada" + "\033[0m")
+        return jsonify({"status": "success"}), 200
+    
+    except Exception as e:
+        print("\033[91m" + f"⚠️ Error al reiniciar: {str(e)}" + "\033[0m")
+        return jsonify({"status": "error", "message": str(e)}), 500
 
 
 
