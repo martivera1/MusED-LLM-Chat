@@ -1,5 +1,77 @@
 import abcjs from 'https://cdn.jsdelivr.net/npm/abcjs@6.4.4/+esm';
 
+// ============ FUNCIONES INDEPENDIENTES DEL DOM ============
+
+// FORMATO DE TEXTO
+const formatText = (text) => {
+    return text.replace(/\n/g, "<br>")
+               .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+};
+
+// DETECCIÓN DE NOTACIÓN ABC
+function isAbcNotation(text) {
+    let foundValidX = false;
+    let foundValidK = false;
+    let musicDetected = false;
+    let passedK = false;
+
+    const lines = text.split('\n');
+    
+    for (const line of lines) {
+        const trimmed = line.trim();
+        
+        if (!trimmed || trimmed.startsWith('%')) continue;
+
+        if (/^X:\s*\d+(\s|$)/i.test(trimmed)) {
+            foundValidX = true;
+        }
+        
+        if (/^K:\s*[A-Ga-g](#|b)?\s*(maj|min|m|dorian|mixolydian|minor|major)?(\s|$)/i.test(trimmed)) {
+            foundValidK = true;
+            passedK = true;
+            continue;
+        }
+
+        if (passedK) {
+            if (/[A-Ga-gzZ|\[\](){}:_^=]/.test(trimmed)) {
+                musicDetected = true;
+            }
+        }
+    }
+    return foundValidX && foundValidK && musicDetected;      
+};
+
+// RENDERIZACIÓN ABC
+const rendersHistory = {};
+
+const renderAbcNotation = async (abcText, renderId = Date.now()) => {
+    try {
+        if (!rendersHistory[renderId]) {
+            document.getElementById("abc-render").innerHTML = '';
+        }
+
+        const renderContainer = document.createElement("div");
+        renderContainer.id = `render-${renderId}`;
+        renderContainer.className = "abc-score";
+        
+        abcjs.renderAbc(renderContainer, abcText, {
+            responsive: "resize",
+            staffwidth: document.getElementById("abc-render").offsetWidth
+        });
+
+        rendersHistory[renderId] = {
+            abcText,
+            element: renderContainer
+        };
+
+        document.getElementById("abc-render").appendChild(renderContainer);
+    } catch (error) {
+        console.error("Error al renderizar:", error);
+        document.getElementById("abc-render").innerHTML = `<p>Error: ${error.message}</p>`;
+    }
+};
+
+// ============ CÓDIGO DEPENDIENTE DEL DOM ============
 document.addEventListener("DOMContentLoaded", () => {
     const sendBtn = document.getElementById("send-btn");
     const questionInput = document.getElementById("question");
@@ -24,8 +96,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
         console.log(`Botón actualizado a: "${prompt_button.textContent}"`);
     });
-
-    
     
     // BOTÓN CERRAR VISUALIZADOR
     const closeBtn = document.getElementById('close-abc');
@@ -74,79 +144,6 @@ document.addEventListener("DOMContentLoaded", () => {
         document.removeEventListener("mousemove", onMouseMove);
         document.removeEventListener("mouseup", stopResizing);
     }
-
-    ///////////////////////////////////////
-
-    // FORMATO DE TEXTO ////
-    const formatText = (text) => {
-        return text.replace(/\n/g, "<br>")
-                   .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
-    };
-    ///////////////////////
-
-    // DETECCIÓN DE NOTACIÓN ABC
-    function isAbcNotation(text) {
-        let foundValidX = false;
-        let foundValidK = false;
-        let musicDetected = false;
-        let passedK = false;
-    
-        const lines = text.split('\n');
-        
-        for (const line of lines) {
-            const trimmed = line.trim();
-            
-            if (!trimmed || trimmed.startsWith('%')) continue;
-    
-            if (/^X:\s*\d+(\s|$)/i.test(trimmed)) {
-                foundValidX = true;
-            }
-            
-            if (/^K:\s*[A-Ga-g](#|b)?\s*(maj|min|m|dorian|mixolydian)?(\s|$)/i.test(trimmed)) {
-                foundValidK = true;
-                passedK = true;
-                continue;
-            }
-    
-            if (passedK) {
-                if (/[A-Ga-gzZ|\[\](){}:_^=]/.test(trimmed)) {
-                    musicDetected = true;
-                }
-            }
-        }
-        return foundValidX && foundValidK && musicDetected;      
-    };
-
-    // HISTORIAL DE RENDERIZACIÓN
-    const rendersHistory = {};
-
-    // RENDERIZACIÓN ABC
-    const renderAbcNotation = async (abcText, renderId = Date.now()) => {
-        try {
-            if (!rendersHistory[renderId]) {
-                abcRender.innerHTML = '';
-            }
-
-            const renderContainer = document.createElement("div");
-            renderContainer.id = `render-${renderId}`;
-            renderContainer.className = "abc-score";
-            
-            abcjs.renderAbc(renderContainer, abcText, {
-                responsive: "resize",
-                staffwidth: abcRender.offsetWidth
-            });
-
-            rendersHistory[renderId] = {
-                abcText,
-                element: renderContainer
-            };
-
-            abcRender.appendChild(renderContainer);
-        } catch (error) {
-            console.error("Error al renderizar:", error);
-            abcRender.innerHTML = `<p>Error: ${error.message}</p>`;
-        }
-    };
 
     // BOTÓN DE RENDERIZACIÓN
     const addRenderButton = (messageDiv, abcText) => {
@@ -279,9 +276,4 @@ document.addEventListener("DOMContentLoaded", () => {
                 "color: #ff0000; font-weight: bold;");
         }
     });
-
-
-
-
-
 });

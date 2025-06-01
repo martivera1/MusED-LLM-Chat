@@ -93,7 +93,6 @@ def index():
 
 @app.route('/ask', methods=['POST'])
 def ask():
-    pre_super_prompt = load_txt_as_str("prompts/super_prompt.txt")
 
     #post_super_prompt = load_txt_as_str("prompts/post_super_prompt.txt")
     try:
@@ -101,7 +100,7 @@ def ask():
         user_question = data.get("question", "")
         use_super = data.get("use_super",True)
         use_text = data.get("use_text",False)
-        # print(f"Received question: {user_question}")
+        print(f"Received question: {user_question}")
         # use_super = data.get("use_super", "true").lower() == "true"
         # use_text = data.get("use_text", "false").lower() == "true"
         
@@ -129,28 +128,28 @@ def ask():
         print(f"Using {'super' if use_super else 'text'} prompt")
 
         # Regex mejorado para detectar notación ABC en cualquier parte del mensaje
-        abc_pattern = re.compile(r"X:\d+\s+T:.*\s+L:\d+/\d+\s+M:\d+/\d+\s+I:linebreak\s+K:[A-G][#b]?.*(\||\|{2})", re.DOTALL)
+        #abc_pattern = re.compile(r"X:\d+\s+T:.*\s+L:\d+/\d+\s+M:\d+/\d+\s+I:linebreak\s+K:[A-G][#b]?.*(\||\|{2})", re.DOTALL)
         #full_prompt = pre_super_prompt  + user_question
         def generate_response():
-            # Verificar si hay notación ABC
-            abc_match = abc_pattern.search(user_question)
-            if abc_match:
-                global abc_notation
-                abc_notation = abc_match.group(0)  # Extraer la notación detectada
+            # # Verificar si hay notación ABC
+            # abc_match = abc_pattern.search(user_question)
+            # if abc_match:
+            #     print("Who made that mess?")
+            #     global abc_notation
+            #     abc_notation = abc_match.group(0)  # Extraer la notación detectada
 
-                unique_id = str(uuid.uuid4())[:8]
-                abc_file_path = os.path.join(TEMP_DIR, f"notation_{unique_id}.abc.txt")
-                with open(abc_file_path, "w") as f:
-                    f.write(abc_notation)
+            #     unique_id = str(uuid.uuid4())[:8]
+            #     abc_file_path = os.path.join(TEMP_DIR, f"notation_{unique_id}.abc.txt")
+            #     with open(abc_file_path, "w") as f:
+            #         f.write(abc_notation)
                 
-                # Responder para redirigir al visor ABC
-                yield "ABC notation detected"
-                #return
+            #     # Responder para redirigir al visor ABC
+            #     yield "ABC notation detected"
+            #     #return
 
             try:
                 # Generar la respuesta usando la conversación con memoria (la cadena añade el historial automáticamente)
                 response = conversation.run(full_prompt) #anteriorment hi havia user_question.
-
                 # Simular respuesta progresiva, enviándola por partes
                 for chunk in response.split(" "):
                     yield f"{chunk} "
@@ -166,16 +165,16 @@ def ask():
         return jsonify({"response": f"Errrror: {str(e)}"}), 500
 
 
-@app.route('/get_abc', methods=['GET'])
-def get_abc():
-    abc_files = sorted(
-        [f for f in os.listdir(TEMP_DIR) if f.endswith(".abc.txt")],
-        key=lambda x: os.path.getmtime(os.path.join(TEMP_DIR, x)),
-        reverse=True
-    )
-    if abc_files:
-        return send_file(os.path.join(TEMP_DIR, abc_files[0]), as_attachment=False, mimetype='text/plain')
-    return jsonify({'error': 'No ABC notation available.'}), 404
+# @app.route('/get_abc', methods=['GET'])
+# def get_abc():
+#     abc_files = sorted(
+#         [f for f in os.listdir(TEMP_DIR) if f.endswith(".abc.txt")],
+#         key=lambda x: os.path.getmtime(os.path.join(TEMP_DIR, x)),
+#         reverse=True
+#     )
+#     if abc_files:
+#         return send_file(os.path.join(TEMP_DIR, abc_files[0]), as_attachment=False, mimetype='text/plain')
+#     return jsonify({'error': 'No ABC notation available.'}), 404
 
 
 @app.route('/reset_chat', methods=['POST'])
