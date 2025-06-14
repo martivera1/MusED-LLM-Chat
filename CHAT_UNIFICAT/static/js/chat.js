@@ -71,7 +71,7 @@ const renderAbcNotation = async (abcText, renderId = Date.now()) => {
     }
 };
 
-// ============ CÓDIGO DEPENDIENTE DEL DOM ============
+// ============ CODI DEPENENT DEL DOM ============
 document.addEventListener("DOMContentLoaded", () => {
     const sendBtn = document.getElementById("send-btn");
     const questionInput = document.getElementById("question");
@@ -83,18 +83,20 @@ document.addEventListener("DOMContentLoaded", () => {
     const restartBtn = document.getElementById('restart-chat');
 
     //CHANGE PROMPT///
-    let isSuperPromptActive = true;
+    let currentPrompt = "music expert";
 
     // Añade este evento después de los demás event listeners
     document.getElementById('choose-prompt').addEventListener('click', () => {
-        isSuperPromptActive = !isSuperPromptActive;
-        
-        prompt_button.textContent = `Choose Prompt (${isSuperPromptActive ? 'Super' : 'Lyrics'})`;
+        if (currentPrompt === "music expert") {
+            currentPrompt = "lyrics expert";
+        } else if (currentPrompt === "lyrics expert") {
+            currentPrompt = "empty";
+        } else {
+            currentPrompt = "music expert";
+        }
 
-        console.log(`%c✅ Prompt seleccionado: ${isSuperPromptActive ? 'SUPER (músico experto)' : 'TEXT (asistente general)'}`, 
-        'color: #2ecc71; font-weight: bold; font-size: 12px;');
-
-        console.log(`Botón actualizado a: "${prompt_button.textContent}"`);
+        prompt_button.innerHTML = `Click to change Prompt<br>Current: (${currentPrompt.charAt(0).toUpperCase() + currentPrompt.slice(1)})`;
+        console.log(`✅ Prompt seleccionat: ${currentPrompt.toUpperCase()}`);
     });
     
     // BOTÓN CERRAR VISUALIZADOR
@@ -204,8 +206,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ 
                     question: question, 
-                    use_super: isSuperPromptActive,
-                    use_text: !isSuperPromptActive
+                    use_super: currentPrompt === "music expert",
+                    use_text: currentPrompt === "lyrics expert",
+                    use_empty: currentPrompt === "empty"
                 }),
 
             });

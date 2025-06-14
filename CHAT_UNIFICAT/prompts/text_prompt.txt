@@ -37,12 +37,28 @@ You are an expert ABC‑notation parser and generator. Here are some instruction
    • A compass is delimited by two bars "| (here the notes) |".
    • Only use "||" in the last compass. 
 
-5. Lyrics
+5. Lyrics (lines that start with "w:")
 
-    Fields
+    A “w:” line must always follow the line of notes to which it corresponds.
 
-        “W:” (uppercase) contains full lyrics, printed separately below the tune.
-        “w:” (lowercase) contains lyrics to be aligned syllable-by-syllable with the notes of the current voice.
+    Do not start a “w:” line before the first note or place it mid-bar.
+
+    Each “w:” aligns syllable-by-syllable with the notes of the previous bar until the next note line or until the end of that lyric line.
+
+    Multiple adjacent “w:” lines after the same music line represent successive verses: the first “w:” is for playback 1, the second for playback 2, etc.
+
+    Syllable counting:
+
+    Each melodic note consumes one syllable.
+
+    If there are more notes than syllables, leftover notes receive blank syllables.
+
+    If there are more syllables than notes, extra syllables are ignored.
+
+    Tied or beamed notes each count as separate notes and consume syllables.
+
+    Grace notes, rests (“z”), and spacers (“x:”) do not consume syllables.
+
 
     5.1 Alignment
 
@@ -57,9 +73,9 @@ You are an expert ABC‑notation parser and generator. Here are some instruction
         L:1/8
         K: C
         C2 D2 E2 F2 |
-        w: doh re mi fa
+        w: do re mi fa
         G2 A2 B2 c2 |
-        w: sol la ti doh
+        w: sol la ti do
         
 
         Fewer syllables than notes → leftover notes have blank syllables.
@@ -73,6 +89,15 @@ You are an expert ABC‑notation parser and generator. Here are some instruction
         - tilde (~) shows a visible space, letting multiple words share one note
         - backslash-hyphen (\–) shows a hyphen on the score while sharing one note
         - bar (|) advances to the next measure only if there are not enough syllables; otherwise it is ignored
+
+        More detailed:
+        Special symbols within “w:”:
+        Hyphen “-” after a syllable splits a word across notes (e.g., “ho-ly”).
+        Underscore “_” holds the same syllable for the next note (extends the same syllable).
+        Asterisk “*” skips one note (blank syllable).
+        Tilde “~” inserts a visible space so two words share one note.
+        Bar “|” inside “w:” only advances to the next bar if there are no more syllables left to align in the current bar; otherwise, it is ignored.
+        If a “w:” line begins with a digit, that digit is treated as the verse number and does not consume a syllable; syllables begin at the next non-numeric character.
 
     Rules
 
@@ -98,8 +123,8 @@ You are an expert ABC‑notation parser and generator. Here are some instruction
         Example: w: 1.~Three blind mice → “Three” aligns with the first note.
 
 
-EXAMPLES:
-    Example 1: A score called Misirlou that has two voices (that's why has two lines of lyrics after one line of some compasses.) of lyrics. The lyrics are in language: Greek
+EXAMPLES (for inspiration only):
+    Example 1: A score called Misirlou. The lyrics are in language: Greek
 
     X: 1
     T : Misirlou
@@ -109,10 +134,86 @@ EXAMPLES:
     L: 1/8
     K: Gm
     | D3 E ^F2 G2 | A3B ^c2BA | A8- | A8 |
-    w: 1.~Mi-sir-lou mou i gli-kia sou ma-tia
-    w: 2.~Mav-ro ma-ta Mi-sir-lou mou tre-lli
+    w: Mi-sir-lou mou i gli-kia sou ma-tia
     | D3E ^F2G2 | A3B ^c2BA | A8- | A8 ||
     w: Flo-ga m'e-hi~i-na-psi mes tin kar-dia
-    w: Ti zo-i m'al-la-zo me-na fi-li
 
+    Example: 
+
+    X: 1
+    T:Amazing Grace
+    C:John Newton
+    S:Soodlum's Irish Tin Whistle Book, John C. Campbell Folk School Song Book
+    M:3/4
+    L:1/8
+    K:G
+    D2 | G4 (3(BAG) | B4 BA | G4 E2 | D4
+    w:1.~A-maz-ing__ grace, how_ sweet the sound
+    D2 | G4 (3(BAG) | B4 AB | d6- | d4
+    w:That saved a__ wretch like_ me._
+    Bd | d4 (3(BAG) | B4 BA | G4 E2 | D4
+    w:I_ once was__ lost, but_ now am found,
+    D2 | G4 (3(BAG) | B4 BA | G6- | G4 |]
+    w:Was blind, but__ now I_ see.
     
+
+    X:1896
+    T:Back From The Goldfields
+    T:Sydney Mail Supplement December 19, 1896
+    C:Music by Sydney Francis Hobden (1866, Balmain - 1943, New Zealand 
+    C:lyrics by Andrew Barton 'Banjo' Paterson (1864-1941)
+    S:National Library of Australia vn3059677 
+    Z:Stephen Hamish Darby
+    Z:Creative Commons attribution only 4.0 unported https://creativecommons.org/licenses/by/4.0/deed.en
+    O:Australia
+    Q:1/4=150
+    L:1/8
+    M:4/4
+    I:linebreak $
+    K:Eb
+    EF | G2 GG G2 FG | A2 E2 G2 GA | G2 FE F2 B,2 |$ E6 GA | B2 =AB c2 dc | B2 G2 E3 E | E2 DE G2 F2 | 
+    w: There are|hearts that are sad at the|Christ- mas time for the|boys that are far a-|way For the|lads that have gone to a|dis- tant clime, And|left us a- lone to|
+    F4 z2 EF |$ G2 GG G2 FG | A2 E2 G2 GA | G2 FE F2 B,2 | E6 GA |$ BBcB =A2 FG |{AB} AGAB G3 G | 
+    w: stay. They have|gone to the West, where the|gold- fields are, Far a|way on the de- ssert|track. And with|we- ary hearts we wait, till some|ha- ppy turn of fate. May|
+    G2 FE F2 G2 | E2 z2 z4 |$ G2 E>F G2 F>G | A2 E2 G2 GA | G2 FE F2 G2 | E4 z2 GA |$ BBcB =A2 F>G | 
+    w: send our * loved ones|back.|Back, call them back from the|far off land; where in|search of * gold they|roam; For it's|hap- pi- er they's be neath the|
+    {_AB} AGAB G4 | E2 DE G2 G2 | F4 z4 |$ G2 E>F G2 F>G | A2 E2 G2 GA | G2 FE F2 G2 | E6 GA |$ 
+    w: old * roof * tree|call our * loved ones|home|Back, call them back from the|far off land where in|search of * gold they|roam For it's|
+    BBcB =A2 FG |{B_A} AGAB G4 | G2 EG B2 B2 | E4 z2 GB |$ e2 BB d2 cc | B2 B2 B3 G | G2 FE F2 G2 | 
+    w: hap- pi- er they'd be neath the|old * roof * tree|Call our * loved ones|home. There's a|mother * that sits in her|old arm chair, and|mourn's as the days go|
+    E4 z2 GB |$ e2 BB d2 cc | B2 B2 B3 B | B =A2 G d3 ^F | G4 z2 GG |$ G2 =A>A B2 =BB | c2 d>d e2 dc | 
+    w: by There's a|moth- er that sits in her|old arm chair and|mourns as the days go|by For her|son is a- way and she|knows not where nor whether *|
+    d3 d d2 d2 | G4 z2 Bd |$ e<e B>B d2 cc | B2 B2 B3 B | B2 BB B2 B2 | B4 z2 z2 |$ G2 E>F G2 F>G | 
+    w: he will live or|die But his|moth- er sits a- lone by the|sad hearth stone and|waits till her boy comes|home|Back, call them back from the|
+    A2 E2 G2 GA | G2 FE F2 G2 | E4 z2 GA |$ BB=AB c2 d>c | B2 G2 E4 | E2 DE G2 F2 | F4 z4 |$ 
+    w: far off land where in|search of * gold they|roam for it's|hap- pi- er they'
+
+
+
+TASK_TEMPLATE:
+Use this template **EXACTLY** to make the task:
+
+X: 1
+T: 
+M: 4/4
+L: 1/8
+K:
+|here the notes| %compass1: (here sum note units)
+w: (here lyrics) %same words as notes
+|here the notes | %compass2: (here sum note units)
+w: (here lyrics) %same words as notes
+|here the notes| %compass3: (here sum note units)
+w: (here lyrics) %same words as notes
+|here the notes| %compass4: (here sum note units)
+w: (here lyrics) %same words as notes
+|here the notes|| %compass5: (here sum note units)
+w: (here lyrics) %same words as notes
+
+
+**IMPORTANT FINAL INSTRUCTIONS**
+- Use explicit durations (numeric values).
+- Remember that each syllable/word has to coincide with one note is IMPORTANT.
+- Ensure each compass sums to EXACTLY 8 units. IF the duration is bigger or less than 8 then ITS WRONG and has to be reapeated.
+- NEVER, IN ANY CASE use "#" or "b" for alterations. Use the ones that are indicated in the instructions (^ = sharp, ^^ = double‑sharp; _ = flat, __ = double‑flat; = = natural).
+- **ONLY OUTPUT THE ABC NOTATION BLOCK**, with no leading or trailing commentary or analysis.
+- If you reason, do not print it. **Your single final response must be the ABC text only.**

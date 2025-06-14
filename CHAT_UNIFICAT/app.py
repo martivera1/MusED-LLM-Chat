@@ -48,74 +48,39 @@ chain = prompt | model
 def index():
     return render_template('index.html')
 
-# @app.route('/ask', methods=['POST'])
-# def ask():
-#     try:
-#         data = request.get_json()
-#         user_question = data.get("question", "")
-#         print(f"Received question: {user_question}")
-#         if not user_question:
-#             return jsonify({"response": "Please provide a question."})
-#         import re
-#         # Improved regex to detect ABC notation anywhere in the message
-#         abc_pattern = re.compile(r"X:\d+\s+T:.*\s+L:\d+/\d+\s+M:\d+/\d+\s+I:linebreak\s+K:[A-G][#b]?.*(\||\|{2})", re.DOTALL)
-
-#         def generate_response():
-#             # Check for ABC notation
-#             abc_match = abc_pattern.search(user_question)
-#             if abc_match:
-#                 global abc_notation
-#                 abc_notation = abc_match.group(0)  # Extraer solo la notación ABC detectada
-                
-#                 unique_id = str(uuid.uuid4())[:8]
-#                 abc_file_path = os.path.join(TEMP_DIR, f"notation_{unique_id}.abc.txt")
-#                 # Crear el archivo en la carpeta temporal_files
-#                 #abc_file_path = os.path.join(TEMP_DIR, "notation.abc.txt")
-#                 with open(abc_file_path, "w") as f:
-#                     f.write(abc_notation)
-                
-                
-#                 # Enviar una respuesta para redirigir al visor ABC
-#                 yield "ABC notation detected"
-#                 #return
-            
-#             # Generar la respuesta progresivamente
-#             response_stream = chain.invoke({"question": user_question})  # Simulación de streaming
-#             for chunk in response_stream.split(" "):  # Procesar palabra por palabra
-#                 yield f"{chunk} "
-#                 import time
-#                 time.sleep(0.1)  # Simular retraso para streaming
-#         print("Returning streaming response...")
-#         return Response(stream_with_context(generate_response()), content_type="text/event-stream")
-
-#     except Exception as e:
-#         return jsonify({"response": f"Errrror: {str(e)}"}), 500
 
 @app.route('/ask', methods=['POST'])
 def ask():
 
-    #post_super_prompt = load_txt_as_str("prompts/post_super_prompt.txt")
     try:
         data = request.get_json()
         user_question = data.get("question", "")
         use_super = data.get("use_super",True)
         use_text = data.get("use_text",False)
+        use_empty = data.get("use_empty", False)
+        
         print(f"Received question: {user_question}")
-        # use_super = data.get("use_super", "true").lower() == "true"
-        # use_text = data.get("use_text", "false").lower() == "true"
+        
         
         # 2. Debug detallado
         print(f"\n--- PARÁMETROS RECIBIDOS ---")
         print(f"use_super: {use_super} ({type(use_super)})")
         print(f"use_text: {use_text} ({type(use_text)})")
+        print(f"use_empty: {use_empty} ({type(use_empty)})")
 
         # Cargar el prompt seleccionado
         if use_text:
             pre_prompt = load_txt_as_str("prompts/text_prompt.txt")
             print("\033[92m" + "✅ LYRICS PROMPT ACTIVATED" + "\033[0m")
+
         elif use_super:
             pre_prompt = load_txt_as_str("prompts/super_prompt.txt")
             print("\033[93m" + "🔼 SUPER PROMPT ACTIVATED" + "\033[0m")
+
+        elif use_empty:
+            pre_prompt = load_txt_as_str("prompts/empty_prompt.txt")
+            print("🟡 EMPTY PROMPT ACTIVATED")
+
         else:
             pre_prompt = ""
             print("\033[91m" + "⚠️ NO PROMPT" + "\033[0m")
@@ -125,27 +90,8 @@ def ask():
         if not user_question:
             return jsonify({"response": "Please provide a question."})
         
-        print(f"Using {'super' if use_super else 'text'} prompt")
 
-        # Regex mejorado para detectar notación ABC en cualquier parte del mensaje
-        #abc_pattern = re.compile(r"X:\d+\s+T:.*\s+L:\d+/\d+\s+M:\d+/\d+\s+I:linebreak\s+K:[A-G][#b]?.*(\||\|{2})", re.DOTALL)
-        #full_prompt = pre_super_prompt  + user_question
         def generate_response():
-            # # Verificar si hay notación ABC
-            # abc_match = abc_pattern.search(user_question)
-            # if abc_match:
-            #     print("Who made that mess?")
-            #     global abc_notation
-            #     abc_notation = abc_match.group(0)  # Extraer la notación detectada
-
-            #     unique_id = str(uuid.uuid4())[:8]
-            #     abc_file_path = os.path.join(TEMP_DIR, f"notation_{unique_id}.abc.txt")
-            #     with open(abc_file_path, "w") as f:
-            #         f.write(abc_notation)
-                
-            #     # Responder para redirigir al visor ABC
-            #     yield "ABC notation detected"
-            #     #return
 
             try:
                 # Generar la respuesta usando la conversación con memoria (la cadena añade el historial automáticamente)
@@ -164,17 +110,6 @@ def ask():
     except Exception as e:
         return jsonify({"response": f"Errrror: {str(e)}"}), 500
 
-
-# @app.route('/get_abc', methods=['GET'])
-# def get_abc():
-#     abc_files = sorted(
-#         [f for f in os.listdir(TEMP_DIR) if f.endswith(".abc.txt")],
-#         key=lambda x: os.path.getmtime(os.path.join(TEMP_DIR, x)),
-#         reverse=True
-#     )
-#     if abc_files:
-#         return send_file(os.path.join(TEMP_DIR, abc_files[0]), as_attachment=False, mimetype='text/plain')
-#     return jsonify({'error': 'No ABC notation available.'}), 404
 
 
 @app.route('/reset_chat', methods=['POST'])
