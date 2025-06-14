@@ -84,7 +84,6 @@ Click on **Music Expert** and send:
 After the response, you will see a **Render Score** button to visualize the ABC notation.
 
 > ![Music Expert Chat](screenshots/music_expert_basic_c_major.png)  
-> ![Rendered Score](screenshots/rendered_score_c_major.png)
 
 ---
 
