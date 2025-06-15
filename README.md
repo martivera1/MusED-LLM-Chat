@@ -73,12 +73,13 @@ This repository contains the main components developed for my Final Degree Proje
 `Create me a basic melody in C Major.`  
 > ![Music Expert Chat](screenshots/music_expert_basic_c_major.png)
 
-#### ✍️ 3. Lyrics Expert  
+#### ✍️ 3. Lyrics Expert
+You can ask him:
 `Can you add lyrics to the previous score?`  
 > ![Lyrics Expert](screenshots/lyrics_added.png)
 
 #### ✨ 4. Empty Prompt Mode  
-Manual testing with ABC prompt.  
+Here you can tune your own prompt! 
 > ![Empty Prompt](screenshots/empty_prompt_mode.png)
 
 ---
