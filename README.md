@@ -14,7 +14,7 @@ This repository contains the main components developed for my Final Degree Proje
 ├── WEB_DEMO/ # Web-based demo for XML ➜ ABC conversion
 ├── screenshots/ # Screenshots used in the documentation
 ├── LICENSE
-└── README.md ```
+└── README.md
 
 ---
 
