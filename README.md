@@ -1,31 +1,51 @@
-# 🎵 Musical Framework
+# 🎼 TFG: Unified Music Framework & Web Demo
 
-**Musical Framework** is an interactive chat application that integrates the **LLaMA 3.1** model via **LangChain**, designed to offer a tailored experience in the musical domain. It includes three predefined modes:
+This repository contains the main components developed for my Final Degree Project (TFG), focused on musical data processing, transformation, and user interaction through language models. The project is divided into two parts:
 
-- 🎧 **Music Expert**: responds as a music expert — perfect for questions about theory, production, genres, and more.  
-- ✍️ **Lyrics Expert**: specialized in helping you write, analyze, or edit song lyrics.  
-- ✨ **Empty**: a prompt-free mode that allows users to input their own custom instructions.
+- [`CHAT_UNIFICAT/`](#-chat_unificat-musical-framework): An interactive chat-based musical framework powered by LLaMA 3.1 via LangChain.
+- [`WEB_DEMO/`](#-web_demo-xml-to-abc-conversion-demo): A lightweight web demo that converts MusicXML to ABC notation, along with visual materials used for presentation and documentation.
 
 ---
 
-## ⚙️ Technologies Used
+## 📁 Repository Structure
+
+📦 TFG Repository
+├── CHAT_UNIFICAT/ # Main application: Musical chat framework
+├── WEB_DEMO/ # Web-based demo for XML ➜ ABC conversion
+├── screenshots/ # Screenshots used in the documentation
+├── LICENSE
+└── README.md
+
+
+---
+
+## 🎵 `CHAT_UNIFICAT/`: Musical Framework
+
+**Musical Framework** is an interactive chat application that integrates the **LLaMA 3.1** model via **LangChain**, designed to offer a tailored experience in the musical domain. It includes three predefined modes:
+
+- 🎧 **Music Expert** – responds as a music expert; ideal for music theory, composition, or genre-related questions.  
+- ✍️ **Lyrics Expert** – helps write or edit song lyrics.  
+- ✨ **Empty** – a flexible, prompt-free mode intended for custom instructions. This mode allows users to define their own musical context (e.g., arranging, chord analysis, score interpretation, instrument advice) and interact freely with the model without preconditioning.
+
+---
+
+### ⚙️ Technologies Used
 
 - Python 3.12.3  
 - Flask  
-- JavaScript  
-- HTML  
+- JavaScript / HTML  
 - LangChain  
 - Ollama (LLaMA 3.1 running locally)
 
 ---
 
-## 🛠️ Installation
+### 🛠️ Installation
 
 1. Clone the repository:
 
     ```bash
-    git clone https://github.com/yourusername/musical-framework.git
-    cd musical-framework
+    git clone https://github.com/yourusername/tfg-musical-framework.git
+    cd tfg-musical-framework/CHAT_UNIFICAT
     ```
 
 2. Create and activate a virtual environment:
@@ -35,97 +55,57 @@
     source venv/bin/activate  # On Windows: venv\Scripts\activate
     ```
 
-3. Install the required dependencies:
+3. Install dependencies:
 
     ```bash
     pip install flask langchain langchain_community
     ```
 
-4. Make sure you have [Ollama](https://ollama.com/) installed and running locally with the LLaMA 3.1 model available.
+4. Make sure [Ollama](https://ollama.com/) is installed and running locally with the LLaMA 3.1 model.
 
 ---
 
-## 💻 Requirements
+### Walkthrough
 
-- Python 3.12.3  
-- Visual Studio Code (recommended)  
-- Ollama installed and running locally  
-- A modern web browser
+#### 🖥️ 1. Starting Screen
+
+> ![Starting Screen](screenshots/starting_screen.png)
+
+#### 🎧 2. Music Expert Mode  
+`Create me a basic melody in C Major.`  
+> ![Music Expert Chat](screenshots/music_expert_basic_c_major.png)
+
+#### ✍️ 3. Lyrics Expert  
+`Can you add lyrics to the previous score?`  
+> ![Lyrics Expert](screenshots/lyrics_added.png)
+
+#### ✨ 4. Empty Prompt Mode  
+Manual testing with ABC prompt.  
+> ![Empty Prompt](screenshots/empty_prompt_mode.png)
+
+---
+
+## 🌐 `WEB_DEMO/`: XML to ABC Conversion Demo
+
+This directory contains a web interface designed to demonstrate a basic transformation pipeline from MusicXML to ABC notation.
+
+### 🧩 Features
+
+- Converts MusicXML files into ABC format
+- Provides example files, transformation scripts, and screenshots
+- Useful for visualizing and validating music notation conversion workflows
+
+This tool was used to support and visualize part of the project’s methodology and evaluation process.
 
 ---
 
 ## 👤 Author
 
-- **Marti Vera**
+- **Martí Vera**
+
+
 
 ---
-## 📸 Screenshots & Walkthrough
-
-Here’s a quick visual overview of how to use **Musical Framework** and its different modes:
-
----
-
-### 🖥️ 1. Starting Screen
-
-The app begins with two main areas:
-
-- **Left Panel**: Chat interface with buttons for expert selection, restart, and score rendering.
-- **Right Panel**: Score viewer that displays generated ABC notation as rendered sheet music.
-
-> ![Starting Screen](screenshots/starting_screen.png)
-
----
-
-### 🎧 2. Music Expert Mode
-
-Click on **Music Expert** and send:  
-`Create me a basic melody in C Major.`
-
-After the response, you will see a **Render Score** button to visualize the ABC notation.
-
-> ![Music Expert Chat](screenshots/music_expert_basic_c_major.png)  
-
----
-
-### 🎼 3. Requesting a Complex Melody
-
-Try asking:  
-`Can you generate a complex melody in F Major?`
-
-> ![Complex Melody](screenshots/complex_melody_f_major.png)
-
----
-
-### ✍️ 4. Lyrics Expert Mode
-
-Switch to **Lyrics Expert** and ask:  
-`Can you add lyrics to the previous score you generated for me?`
-
-> ![Lyrics Expert Chat](screenshots/lyrics_added.png)
-
----
-
-### ✨ 5. Empty Prompt Mode
-
-Select the **Empty** expert and run the same tests manually:
-
-1. `Create me a basic melody in C Major (using ABC notation)`
-2. `Can you add lyrics to the previous score you generated for me?`
-
-> ![Empty Prompt Example](screenshots/empty_prompt_mode.png)
-
----
-
-## ✅ Evaluation
-
-Once you’ve completed the walkthrough, you can fill out the evaluation form:
-
-[📝 Feedback Form](https://forms.gle/pH43fw3BTxifmaUVA)
-
----
-
-> 📁 *Place your screenshots in a folder called `screenshots/` inside your project for the image paths above to work.*
-
 
 ## 📄 License
 
