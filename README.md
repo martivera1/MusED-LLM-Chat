@@ -76,11 +76,9 @@ This repository contains the main components developed for my Final Degree Proje
 #### ✍️ 3. Lyrics Expert
 You can ask him:
 `Can you add lyrics to the previous score?`  
-> ![Lyrics Expert](screenshots/lyrics_added.png)
 
 #### ✨ 4. Empty Prompt Mode  
 Here you can tune your own prompt! 
-> ![Empty Prompt](screenshots/empty_prompt_mode.png)
 
 ---
 
