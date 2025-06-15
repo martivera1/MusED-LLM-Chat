@@ -1,4 +1,4 @@
-# 🎼 TFG: Unified Music Framework & Web Demo
+# 🎼 TFG: Music Framework & XML2ABC Demo
 
 This repository contains the main components developed for my Final Degree Project (TFG), focused on musical data processing, transformation, and user interaction through language models. The project is divided into two parts:
 
