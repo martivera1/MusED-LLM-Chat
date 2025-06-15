@@ -42,8 +42,8 @@ This repository contains the main components developed for my Final Degree Proje
 1. Clone the repository:
 
     ```bash
-    git clone https://github.com/yourusername/tfg-musical-framework.git
-    cd tfg-musical-framework/CHAT_UNIFICAT
+    git clone https://github.com/yourusername/tfg-musical-framework.git](https://github.com/martivera1/MusED-LLM-Chat
+    cd MusED-LLM-Chat/CHAT_UNIFICAT
     ```
 
 2. Create and activate a virtual environment:
