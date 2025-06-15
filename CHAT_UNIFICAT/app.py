@@ -31,13 +31,11 @@ TEMP_DIR = os.path.join(os.path.abspath(os.path.dirname(__file__)), "temporal_fi
 os.makedirs(TEMP_DIR, exist_ok=True)
 
 
-# Configurar el model
 prompt = ChatPromptTemplate.from_template("""Question: {question}
 
 Answer:
 (Please work through the problem step by step in your internal reasoning, but do not print those private thoughts. When you’ve finished thinking, output only the final reasoning under the heading "Final Reasoning:”.)""")
 
-#prompt = ChatPromptTemplate.from_template("""Question: {question}""") #per veure si canvia i no raona tant i va més al punt.
 model = OllamaLLM(model="llama3.1:8b")
 memory = ConversationBufferMemory(memory_key="history", return_messages=True)
 conversation = ConversationChain(llm=model, memory=memory)
@@ -62,13 +60,6 @@ def ask():
         print(f"Received question: {user_question}")
         
         
-        # 2. Debug detallado
-        print(f"\n--- PARÁMETROS RECIBIDOS ---")
-        print(f"use_super: {use_super} ({type(use_super)})")
-        print(f"use_text: {use_text} ({type(use_text)})")
-        print(f"use_empty: {use_empty} ({type(use_empty)})")
-
-        # Cargar el prompt seleccionado
         if use_text:
             pre_prompt = load_txt_as_str("prompts/text_prompt.txt")
             print("\033[92m" + "✅ LYRICS PROMPT ACTIVATED" + "\033[0m")
@@ -94,12 +85,10 @@ def ask():
         def generate_response():
 
             try:
-                # Generar la respuesta usando la conversación con memoria (la cadena añade el historial automáticamente)
-                response = conversation.run(full_prompt) #anteriorment hi havia user_question.
-                # Simular respuesta progresiva, enviándola por partes
+                response = conversation.run(full_prompt)
                 for chunk in response.split(" "):
                     yield f"{chunk} "
-                    time.sleep(0.1)  # Simular retraso para streaming
+                    time.sleep(0.1)
 
             except Exception as e:
                 yield f"Error generating response: {str(e)}"
@@ -115,7 +104,6 @@ def ask():
 @app.route('/reset_chat', methods=['POST'])
 def reset_chat():
     try:
-        # Reiniciar la memoria de la conversación
         global conversation
         conversation = ConversationChain(
             llm=model,

@@ -1,14 +1,12 @@
 import abcjs from 'https://cdn.jsdelivr.net/npm/abcjs@6.4.4/+esm';
 
-// ============ FUNCIONES INDEPENDIENTES DEL DOM ============
 
-// FORMATO DE TEXTO
 const formatText = (text) => {
     return text.replace(/\n/g, "<br>")
                .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
 };
 
-// DETECCIÓN DE NOTACIÓN ABC
+//ABC DETECTION
 function isAbcNotation(text) {
     let foundValidX = false;
     let foundValidK = false;
@@ -41,7 +39,7 @@ function isAbcNotation(text) {
     return foundValidX && foundValidK && musicDetected;      
 };
 
-// RENDERIZACIÓN ABC
+//ABC RENDER
 const rendersHistory = {};
 
 const renderAbcNotation = async (abcText, renderId = Date.now()) => {
@@ -71,7 +69,7 @@ const renderAbcNotation = async (abcText, renderId = Date.now()) => {
     }
 };
 
-// ============ CODI DEPENENT DEL DOM ============
+
 document.addEventListener("DOMContentLoaded", () => {
     const sendBtn = document.getElementById("send-btn");
     const questionInput = document.getElementById("question");
@@ -85,7 +83,6 @@ document.addEventListener("DOMContentLoaded", () => {
     //CHANGE PROMPT///
     let currentPrompt = "music expert";
 
-    // Añade este evento después de los demás event listeners
     document.getElementById('choose-prompt').addEventListener('click', () => {
         if (currentPrompt === "music expert") {
             currentPrompt = "lyrics expert";
@@ -99,7 +96,7 @@ document.addEventListener("DOMContentLoaded", () => {
         console.log(`✅ Prompt seleccionat: ${currentPrompt.toUpperCase()}`);
     });
     
-    // BOTÓN CERRAR VISUALIZADOR
+    //SCORE VISUALIZER
     const closeBtn = document.getElementById('close-abc');
     if (closeBtn) {
         closeBtn.addEventListener('click', () => {
@@ -114,7 +111,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // REDIMENSIONAR PARTITURA (ARRASTRE) /////
+    //REDIMENSION SCORE
     let isResizing = false;
     let initialX;
     let initialWidth;
@@ -147,7 +144,7 @@ document.addEventListener("DOMContentLoaded", () => {
         document.removeEventListener("mouseup", stopResizing);
     }
 
-    // BOTÓN DE RENDERIZACIÓN
+    //RENDER BUTTON
     const addRenderButton = (messageDiv, abcText) => {
         const buttonContainer = document.createElement("div");
         buttonContainer.className = "button-container";
@@ -171,7 +168,7 @@ document.addEventListener("DOMContentLoaded", () => {
         messageDiv.appendChild(buttonContainer);
     };
 
-    // INTERACCIÓN PRINCIPAL DEL CHAT
+    //CHAT INTERACTION
     sendBtn.addEventListener("click", async () => {
         const question = questionInput.value.trim();
         if (!question) return;
@@ -190,7 +187,6 @@ document.addEventListener("DOMContentLoaded", () => {
         chatbox.scrollTop = chatbox.scrollHeight;
 
         try {
-            // Crear mensaje del bot con spinner inmediatamente
             const botMessageDiv = document.createElement("div");
             botMessageDiv.classList.add("message", "bot");
             botMessageDiv.innerHTML = `
@@ -227,7 +223,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 const chunk = decoder.decode(value, { stream: true });
                 fullResponse += chunk;
 
-                // Manejar primer chunk
                 if (isFirstChunk) {
                     botMessageDiv.innerHTML = formatText(chunk);
                     isFirstChunk = false;
@@ -235,7 +230,6 @@ document.addEventListener("DOMContentLoaded", () => {
                     botMessageDiv.innerHTML += formatText(chunk);
                 }
 
-                // Manejar detección de ABC
                 if (chunk.includes("ABC notation detected")) {
                     botMessageDiv.innerHTML += "<br><br>";
                 }
@@ -243,12 +237,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 chatbox.scrollTop = chatbox.scrollHeight;
             }
 
-            // Verificar ABC al finalizar
             if (isAbcNotation(fullResponse)) {
                 addRenderButton(botMessageDiv, fullResponse);
             }
         } catch (error) {
-            // Manejar errores eliminando el spinner
             const errorDiv = document.querySelector(".message.bot:last-child");
             if (errorDiv) {
                 errorDiv.innerHTML = `<strong>Error:</strong> ${error.message}`;
@@ -257,20 +249,17 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // Añade este event listener después de los demás
     restartBtn.addEventListener('click', async () => {
-        // Limpiar la interfaz
         chatbox.innerHTML = '';
         abcRender.innerHTML = '';
         
         try {
-            // Reiniciar la conversación en el backend
             const response = await fetch("/reset_chat", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
             });
             
-            if (!response.ok) throw new Error("Error al reiniciar el chat");
+            if (!response.ok) throw new Error("Error restarting the chat");
             
             console.log("%c♻️ Chat restarted correctly", 
                 "color: #00cc00; font-weight: bold; font-size: 12px;");

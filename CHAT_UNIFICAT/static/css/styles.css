@@ -59,40 +59,22 @@ body {
 }
 
 
-
-/* Ajustes específicos para el header */
 .header {
   padding: 15px;
   background: #f8f9fa;
   border-bottom: 1px solid #dee2e6;
 }
 
-/* Contenedor del título + botón reinicio */
+
 .header > div:first-child {
-  gap: 15px;  /* Espacio entre título y botón */
+  gap: 15px;  
 }
 
-/* Grupo de botones derecha */
+
 .header > div:last-child {
-  gap: 8px;  /* Espacio entre botones derechos */
+  gap: 8px; 
 }
 
-/* .header {
-  padding: 1rem;
-  background-color: white;
-  border-bottom: 1px solid #e5e7eb;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.header h1 {
-  font-size: 1.25rem;
-  color: #1f2937;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-} */
 
 #toggle-sidebar {
   background: none;
@@ -108,37 +90,37 @@ body {
   overflow-y: auto;
   background-color: white;
   display: flex;
-  flex-direction: column; /* Apila los mensajes en columnas */
-  gap: 0.5rem; /* Espacio entre los mensajes */
+  flex-direction: column; 
+  gap: 0.5rem; 
 }
 
 .message {
-  max-width: 80%; /* Mantiene el texto dentro de un rango manejable */
+  max-width: 80%; 
   margin-bottom: 1rem;
   padding: 0.75rem 1rem;
   border-radius: 0.5rem;
-  word-wrap: break-word; /* Asegura que el texto largo se ajuste */
-  display: inline-block; /* Permite que el contenedor se ajuste al contenido */
+  word-wrap: break-word; 
+  display: inline-block; 
 }
 
 .message.user {
   background-color: #e9d5ff;
   color: #581c87;
-  margin-left: auto; /* Alinea el mensaje del usuario a la derecha */
-  text-align: left; /* Opcional: Alinea el texto a la derecha */
+  margin-left: auto; 
+  text-align: left; 
   border-top-right-radius: 0;
 }
 
 .message.bot{
   background-color: #dbeafe;
   color: #1e40af;
-  margin-right: auto; /* Alinea el mensaje del bot a la izquierda */
-  text-align: left; /* Asegura la alineación del texto a la izquierda */
+  margin-right: auto; 
+  text-align: left; 
   border-top-left-radius: 0;
 }
 
 .message.bot strong {
-  color: inherit; /* Hereda el color de .message.bot */
+  color: inherit; 
   font-weight: bold;
 }
 
@@ -195,7 +177,7 @@ body {
 }
 
 .render-button {
-  background-color: #3b82f6; /* Azul consistente con #send-btn */
+  background-color: #3b82f6; 
   color: white;
   border: none;
   padding: 0.5rem 1rem;
@@ -210,18 +192,18 @@ body {
 }
 
 .render-button:hover {
-  background-color: #2563eb; /* Azul más oscuro al pasar el mouse */
+  background-color: #2563eb; 
 }
 
 .render-button:active {
-  transform: scale(0.98); /* Efecto de clic */
+  transform: scale(0.98); 
 }
 
 
 #abc-visualizer {
-  position: relative;  /* Needed for resizer positioning */
-  width: 400px;        /* Initial width */
-  flex-shrink: 0;      /* Prevent flex shrinkage */
+  position: relative;  
+  width: 400px;        
+  flex-shrink: 0;      
 }
 
 .resizer {
@@ -253,8 +235,8 @@ body {
 .spinner {
   width: 24px;
   height: 24px;
-  border: 3px solid #dbeafe; /* Color del fondo del mensaje bot */
-  border-top: 3px solid #3b82f6; /* Azul del tema */
+  border: 3px solid #dbeafe; 
+  border-top: 3px solid #3b82f6; 
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
