@@ -3,7 +3,7 @@
 This repository contains the main components developed for my Final Degree Project (TFG), focused on musical data processing, transformation, and user interaction through language models. The project is divided into two parts:
 
 - [`CHAT_UNIFICAT/`](#-chat_unificat-musical-framework): An interactive chat-based musical framework powered by LLaMA 3.1 via LangChain.
-- [`WEB_DEMO/`](#-web_demo-xml-to-abc-conversion-demo): A lightweight web demo that converts MusicXML to ABC notation, along with visual materials used for presentation and documentation.
+- [`WEB_DEMO/`](#-web_demo-xml-to-abc-conversion-demo): A lightweight web demo that converts MusicXML to ABC notation.
 
 ---
 
